@@ -1,0 +1,10 @@
+(library
+ (name letters)
+ (libraries
+   mrmime
+   ptime.clock.os
+   lwt
+   fpath
+   colombe colombe.emile sendmail-lwt sendmail.tls
+ )
+)

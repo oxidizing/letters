@@ -1,0 +1,4 @@
+/_build/
+/_opam/
+.merlin
+ethereal_account.json
