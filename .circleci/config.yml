@@ -23,6 +23,11 @@ jobs:
             sudo apt-get install -y curl
             opam depext -y letters
       - run:
+          # TODO: remove once we have release of colombe with this fix
+          name: Pin colombe version
+          command: |
+             opam pin add colombe.0.3.0 git://github.com/mirage/colombe#edf757c58fce58c170c63e8a92d3bc81fe4d32ff
+      - run:
           name: Install OCaml dependencies
           command: |
             opam install --deps-only -y letters --with-test
