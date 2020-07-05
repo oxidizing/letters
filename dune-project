@@ -1,6 +1,6 @@
 (lang dune 2.3)
 (name letters)
-(version dev)
+(version 0.1.0)
 
 (authors "Miko Nieminen <miko.nieminen@iki.fi>")
 (maintainers "Miko Nieminen <miko.nieminen@iki.fi>")
