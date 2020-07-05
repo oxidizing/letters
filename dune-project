@@ -2,8 +2,6 @@
 (name letters)
 (version dev)
 
-(generate_opam_files true)
-
 (authors "Miko Nieminen <miko.nieminen@iki.fi>")
 (maintainers "Miko Nieminen <miko.nieminen@iki.fi>")
 (homepage "https://github.com/oxidizing/letters/")
