@@ -45,3 +45,9 @@ And finally review that the email is correctly generated in the service:
 # Credits
 
 This project is build on [colombe](https://github.com/mirage/colombe "colombe project") and [mrmime](https://github.com/mirage/mrmime "mrmime project") libraries and use [facteur](https://github.com/dinosaure/facteur "facteur email sending tool") as starting point.
+
+## License
+
+Copyright (c) 2020 Miko Nieminen
+
+Distributed under the MIT License.

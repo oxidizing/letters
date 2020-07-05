@@ -1,15 +1,19 @@
 (lang dune 2.3)
 (name letters)
-(version 0.1.0)
+(version dev)
 
 (generate_opam_files true)
 
-(authors "Miko Nieminen")
+(authors "Miko Nieminen <miko.nieminen@iki.fi>")
+(maintainers "Miko Nieminen <miko.nieminen@iki.fi>")
+(homepage "https://github.com/oxidizing/letters/")
+(bug_reports "https://github.com/oxidizing/letters/issues")
+
 
 (package
  (name letters)
- (synopsis "Client library for sending email using SMTP")
- (description "Simplified SMTP client implementation")
+ (synopsis "Client library for sending email over SMTP")
+ (description "Simple to use SMTP client implementation for ocaml")
  (depends
   (ocaml (>= 4.03.0))
   (dune (>= 2.0))
