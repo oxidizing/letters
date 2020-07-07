@@ -1,6 +1,6 @@
 (lang dune 2.3)
 (name letters)
-(version dev)
+(version 0.1.0)
 
 (generate_opam_files true)
 
