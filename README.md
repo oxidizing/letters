@@ -1,18 +1,21 @@
+# &#9993; Letters &middot; [![CircleCI](https://circleci.com/gh/oxidizing/letters.svg?style=shield)](https://circleci.com/gh/oxidizing/letters) ![GitHub](https://img.shields.io/github/license/oxidizing/letters)
 
-# Setup
+Letters is a library for creating and sending emails over SMTP using [Lwt](https://github.com/ocsigen/lwt).
+
+## Setup
 
 ``` shell
 opam switch create . ocaml-base-compiler.4.08.1
 opam install --deps-only -y . --with-test
 ```
 
-# Build
+## Build
 
 ``` shell
 dune build
 ```
 
-# Run Tests
+## Run Tests
 
 First create *ethereal.email* account and store account details
 ``` shell
@@ -20,7 +23,7 @@ curl -d '{ "requestor": "letters", "version": "0.1.0" }' "https://api.nodemailer
 ```
 
 Currently using `ethereal.email` service requires non-released version of `colombe` and
-you need to checkout the project, commit `edf757c58fce58c170c63e8a92d3bc81fe4d32ff` contains the needed fix. Then the version with the fix needs to be pinned in the build env:
+you need to check out the project, commit `edf757c58fce58c170c63e8a92d3bc81fe4d32ff` contains the needed fix. Then the version with the fix needs to be pinned in the build env:
 
 ``` shell
 cd /path/to/colombe
@@ -42,7 +45,7 @@ And finally review that the email is correctly generated in the service:
 - login to https://ethereal.email/login using credentials from the `ethereal_account.json`
 - check the content of messages: https://ethereal.email/messages
 
-# Credits
+## Credits
 
 This project is build on [colombe](https://github.com/mirage/colombe "colombe project") and [mrmime](https://github.com/mirage/mrmime "mrmime project") libraries and use [facteur](https://github.com/dinosaure/facteur "facteur email sending tool") as starting point.
 
