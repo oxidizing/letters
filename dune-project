@@ -10,8 +10,8 @@
 
 (package
  (name letters)
- (synopsis "Client library for sending email over SMTP")
- (description "Simple to use SMTP client implementation for ocaml")
+ (synopsis "Client library for sending emails over SMTP")
+ (description "Simple to use SMTP client implementation for OCaml")
  (depends
   (ocaml (>= 4.03.0))
   (dune (>= 2.0))
