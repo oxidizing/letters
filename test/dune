@@ -1,6 +1,5 @@
 (test
  (name test)
- (modes (byte exe))
  (libraries
   letters
   alcotest
