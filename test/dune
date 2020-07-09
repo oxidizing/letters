@@ -1,0 +1,11 @@
+(test
+ (name test)
+ (modes (byte exe))
+ (libraries
+  letters
+  alcotest
+  alcotest-lwt
+  lwt
+  yojson
+ )
+)
