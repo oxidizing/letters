@@ -17,7 +17,7 @@
  (synopsis "Client library for sending emails over SMTP")
  (description "Simple to use SMTP client implementation for OCaml")
  (depends
-  (ocaml (>= 4.03.0))
+  (ocaml (>= 4.08.1))
   (dune (>= 2.3))
   (mrmime (= 0.3.0))
   (colombe (= 0.3.0))
