@@ -1,6 +1,6 @@
 (lang dune 2.3)
 (name letters)
-(version 0.1.0)
+(version 0.1.1)
 
 (generate_opam_files true)
 
@@ -17,11 +17,11 @@
  (synopsis "Client library for sending emails over SMTP")
  (description "Simple to use SMTP client implementation for OCaml")
  (depends
-  (ocaml (>= 4.03.0))
+  (ocaml (>= 4.08.1))
   (dune (>= 2.3))
-  (mrmime (= 0.3.0))
-  (colombe (= 0.3.0))
-  (sendmail-lwt (= 0.3.0))
+  (mrmime (>= 0.3.0))
+  (colombe (>= 0.3.0))
+  (sendmail-lwt (>= 0.3.0))
   (fmt (>= 0.8.8))
   (x509 (>= 0.9.0))
   (ptime (>= 0.8.5))
