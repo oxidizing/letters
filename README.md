@@ -6,6 +6,7 @@ Letters is a library for creating and sending emails over SMTP using [Lwt](https
 
 ``` shell
 opam switch create . ocaml-base-compiler.4.08.1
+eval $(opam env)
 opam install --deps-only -y . --with-test
 ```
 
