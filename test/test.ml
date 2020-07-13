@@ -11,16 +11,16 @@ let get_ethereal_account_details () =
   let username = json |> member "user" |> to_string in
   let password = json |> member "pass" |> to_string in
   let smtp_node = json |> member "smtp" in
-  let host = smtp_node |> member "host" |> to_string in
+  let hostname = smtp_node |> member "host" |> to_string in
   let port = smtp_node |> member "port" |> to_int in
   let with_starttls = smtp_node |> member "secure" |> to_bool |> not in
   Lwt.return {
     sender = username;
-    username = username;
-    password = password;
-    hostname = host;
+    username;
+    password;
+    hostname;
     port = Some port;
-    with_starttls = with_starttls;
+    with_starttls;
     ca_dir = "/etc/ssl/certs";
   }
 
