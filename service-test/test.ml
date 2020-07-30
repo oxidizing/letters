@@ -25,7 +25,7 @@ let get_ethereal_account_details () =
       ca_dir = "/etc/ssl/certs";
     }
 
-let test_send_email_using_ethereal_service config _ () =
+let test_send_plain_text_email config _ () =
   let recipients =
     [
       To "harry@example.com";
@@ -34,22 +34,85 @@ let test_send_email_using_ethereal_service config _ () =
       Bcc "dave@example.com";
     ]
   in
-  let subject = "Hello" in
+  let subject = "Plain text test email" in
   let body =
-    Plain
-      {|
-      Hi there,
+    Plain {|
+Hi there,
 
-      have you already seen the very cool new web framework written in ocaml: https://github.com/oxidizing/sihl
+have you already seen the very cool new web framework written in ocaml:
+https://github.com/oxidizing/sihl
 
-      Regards,
-      The team
+Regards,
+The team
 |}
   in
-  let email = build_email ~from:config.sender ~recipients ~subject ~body in
-  match email with
-  | Ok message -> send ~config ~recipients ~message
-  | Error reason -> failwith reason
+  let mail = build_email ~from:config.sender ~recipients ~subject ~body in
+  match mail with
+    | Ok message -> send ~config ~recipients ~message
+    | Error reason -> Lwt.fail_with reason
+
+let test_send_html_email config _ () =
+  let recipients =
+    [
+      To "harry@example.com";
+      To "larry@example.com";
+      Cc "bill@example.com";
+      Bcc "dave@example.com";
+    ]
+  in
+  let subject = "HTML only test email" in
+  let body =
+    Html {|
+<p>Hi there,</p>
+<p>
+  have you already seen the very cool new web framework written in ocaml:
+  <a href="https://github.com/oxidizing/sihl">Sihl</a>
+<p>
+Regards,<br>
+The team
+</p>
+|}
+  in
+  let mail = build_email ~from:config.sender ~recipients ~subject ~body in
+  match mail with
+    | Ok message -> send ~config ~recipients ~message
+    | Error reason -> Lwt.fail_with reason
+
+let test_send_mixed_body_email config _ () =
+  let recipients =
+    [
+      To "harry@example.com";
+      To "larry@example.com";
+      Cc "bill@example.com";
+      Bcc "dave@example.com";
+    ]
+  in
+  let subject = "Mixed body email with plain text and HTML" in
+  let text = {|
+Hi there,
+
+have you already seen the very cool new web framework written in ocaml:
+https://github.com/oxidizing/sihl
+
+Regards,
+The team
+|}
+  in
+  let html = {|
+<p>Hi there,</p>
+<p>
+  have you already seen the very cool new web framework written in ocaml:
+  <a href="https://github.com/oxidizing/sihl">Sihl</a>
+<p>
+Regards,<br>
+The team
+</p>
+|}
+  in
+  let mail = build_email ~from:config.sender ~recipients ~subject ~body:(Mixed (text, html, None)) in
+  match mail with
+    | Ok message -> send ~config ~recipients ~message
+    | Error reason -> Lwt.fail_with reason
 
 (* Run it *)
 let () =
@@ -57,9 +120,13 @@ let () =
     (let* (conf : config) = get_ethereal_account_details () in
      Alcotest_lwt.run "STMP client"
        [
-         ( "Send emails",
+         ( "use ethereal.email service",
            [
-             Alcotest_lwt.test_case "Send one" `Quick
-               (test_send_email_using_ethereal_service conf);
+             Alcotest_lwt.test_case "Send plain text email" `Quick
+               (test_send_plain_text_email conf);
+             Alcotest_lwt.test_case "Send html email" `Quick
+               (test_send_html_email conf);
+             Alcotest_lwt.test_case "Send send mixed body email" `Quick
+               (test_send_mixed_body_email conf);
            ] );
        ])

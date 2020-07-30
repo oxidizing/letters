@@ -21,7 +21,7 @@ type config = {
  ** expected to be found when verifying server certificate.
  ** *)
 
-type body = Plain of string | Html of string
+type body = Plain of string | Html of string | Mixed of string * string * (string option)
 
 type recipient = To of string | Cc of string | Bcc of string
 

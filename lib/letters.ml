@@ -8,7 +8,9 @@ type config = {
   ca_dir : string;
 }
 
-type body = Plain of string | Html of string
+type body = Plain of string | Html of string | Mixed of string * string * (string option)
+
+type mt_body = MtSimple of Mrmime.Mt.part | MtMultipart of Mrmime.Mt.multipart
 
 type recipient = To of string | Cc of string | Bcc of string
 
@@ -136,11 +138,27 @@ let build_email ~from ~recipients ~subject ~body =
           ]
     in
     let body =
+      let multipart_content_alternative =
+        let open Content_type in
+        Content_type.make `Multipart (Subtype.v `Multipart "alternative") Parameters.empty
+      in
       match body with
-      | Plain text -> Mt.part ~header:plain_text_headers (stream_of_string text)
-      | Html text -> Mt.part ~header:html_headers (stream_of_string text)
+      | Plain text -> MtSimple (Mt.part ~header:plain_text_headers (stream_of_string text))
+      | Html html -> MtSimple (Mt.part ~header:html_headers (stream_of_string html))
+      | Mixed (text, html, boundary) ->
+        let plain = Mt.part ~header:plain_text_headers (stream_of_string text) in
+        let html = Mt.part ~header:html_headers (stream_of_string html) in
+        let header = Header.of_list [
+            Field (Field_name.content_type, Content, multipart_content_alternative)
+          ]
+        in
+        match boundary with
+        | None -> MtMultipart (Mt.multipart ~rng:Mt.rng ~header [ plain; html ])
+        | Some boundary -> MtMultipart (Mt.multipart ~rng:Mt.rng ~header ~boundary [ plain; html ])
     in
-    Ok (Mt.make (Mrmime.Header.of_list headers) Mt.simple body)
+    match body with
+    | MtSimple part -> Ok (Mt.make (Mrmime.Header.of_list headers) Mt.simple part)
+    | MtMultipart multi -> Ok (Mt.make (Mrmime.Header.of_list headers) Mt.multi multi)
   with
   | Invalid_email_address address -> Error (Printf.sprintf "Invalid email address: %s" address)
   | ex -> Error (Printexc.to_string ex)
