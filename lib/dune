@@ -7,5 +7,6 @@
    lwt
    fpath
    colombe colombe.emile sendmail-lwt sendmail.tls
+   ca-certs
  )
 )
