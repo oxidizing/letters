@@ -14,16 +14,10 @@ let get_ethereal_account_details () =
   let hostname = smtp_node |> member "host" |> to_string in
   let port = smtp_node |> member "port" |> to_int in
   let with_starttls = smtp_node |> member "secure" |> to_bool |> not in
-  Lwt.return
-    {
-      sender = username;
-      username;
-      password;
-      hostname;
-      port = Some port;
-      with_starttls;
-      ca_dir = "/etc/ssl/certs";
-    }
+  Config.make ~username ~password ~hostname ~with_starttls
+  |> Config.set_port (Some port)
+  |> Config.set_ca_dir (Some "/etc/ssl/certs")
+  |> Lwt.return
 
 let test_send_email_using_ethereal_service config _ () =
   let recipients =

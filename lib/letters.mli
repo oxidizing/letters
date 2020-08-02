@@ -1,12 +1,17 @@
-type config = {
-  sender : string;
-  username : string;
-  password : string;
-  hostname : string;
-  port : int option;
-  with_starttls : bool;
-  ca_dir : string;
-}
+module Config : sig
+  type t
+
+  val make :
+    username:string ->
+    password:string ->
+    hostname:string ->
+    with_starttls:bool ->
+    t
+
+  val set_port : int option -> t -> t
+
+  val set_ca_dir : Lwt_io.file_name option -> t -> t
+end
 
 type body = Plain of string | Html of string
 
@@ -20,7 +25,7 @@ val build_email :
   Mrmime.Mt.t
 
 val send :
-  config:config ->
+  config:Config.t ->
   recipients:recipient list ->
   message:Mrmime.Mt.t ->
   (unit, string) Lwt_result.t

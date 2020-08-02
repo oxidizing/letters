@@ -1,12 +1,20 @@
-type config = {
-  sender : string;
-  username : string;
-  password : string;
-  hostname : string;
-  port : int option;
-  with_starttls : bool;
-  ca_dir : string;
-}
+module Config = struct
+  type t = {
+    username : string;
+    password : string;
+    hostname : string;
+    port : int option;
+    with_starttls : bool;
+    ca_dir : string option;
+  }
+
+  let make ~username ~password ~hostname ~with_starttls =
+    { username; password; hostname; with_starttls; port = None; ca_dir = None }
+
+  let set_port port config = { config with port }
+
+  let set_ca_dir ca_dir config = { config with ca_dir }
+end
 
 type body = Plain of string | Html of string
 
