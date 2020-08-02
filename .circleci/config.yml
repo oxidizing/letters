@@ -28,6 +28,11 @@ jobs:
           command: |
              opam pin add colombe.0.3.0 git://github.com/mirage/colombe#edf757c58fce58c170c63e8a92d3bc81fe4d32ff
       - run:
+          # TODO: remove once we have release of ca-certs in opam
+          name: Pin ca-certs
+          command: |
+             opam pin add ca-certs git@github.com:mirage/ca-certs.git#master
+      - run:
           name: Install OCaml dependencies
           command: |
             opam install --deps-only -y letters --with-test
