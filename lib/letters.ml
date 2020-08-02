@@ -190,8 +190,15 @@ let send ~config:c ~sender ~recipients ~message =
         | Error _ -> failwith "Config hostname is not valid hostname"
         | Ok hostname -> hostname )
   in
+  let* detected_cert = Ca_certs.detect () in
+  let path =
+    match (c.ca_dir, detected_cert) with
+    | Some dir, _ -> dir
+    | None, Some (`Ca_file dir) -> dir
+    | None, None -> failwith "no"
+  in
   let* certs =
-    match Fpath.of_string c.ca_dir with
+    match Fpath.of_string path with
     | Ok path -> certs_of_pem_directory ~ext:"pem" path
     | Error _ -> failwith "Failed to open CA certificates directory"
   in
