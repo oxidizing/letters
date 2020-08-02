@@ -195,7 +195,7 @@ let send ~config:c ~sender ~recipients ~message =
     match (c.ca_dir, detected_cert) with
     | Some dir, _ -> dir
     | None, Some (`Ca_file dir) -> dir
-    | None, None -> failwith "no"
+    | None, None -> failwith "No CA certificates directory provided or found"
   in
   let* certs =
     match Fpath.of_string path with
