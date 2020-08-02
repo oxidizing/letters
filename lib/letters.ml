@@ -147,7 +147,8 @@ let build_email ~from ~recipients ~subject ~body =
   in
   Mt.make (Mrmime.Header.of_list headers) Mt.simple body
 
-let send ~config:c ~recipients:r ~message:m =
+let send ~config:c ~sender ~recipients ~message =
+  let open Config in
   let ( let* ) = Lwt.bind in
   let authentication : Sendmail.authentication =
     { username = c.username; password = c.password; mechanism = Sendmail.PLAIN }
@@ -158,9 +159,9 @@ let send ~config:c ~recipients:r ~message:m =
     | None, false -> 465
     | Some v, _ -> v
   in
-  let mail = Mrmime.Mt.to_stream m in
+  let mail = Mrmime.Mt.to_stream message in
   let from_mailbox =
-    match Emile.of_string c.sender with
+    match Emile.of_string sender with
     | Ok v -> v
     | Error `Invalid -> failwith "Invalid sender address"
   in
@@ -174,7 +175,7 @@ let send ~config:c ~recipients:r ~message:m =
       (fun recipient ->
         (match recipient with To a -> a | Cc a -> a | Bcc a -> a)
         |> str_to_colombe_address)
-      r
+      recipients
   in
   let domain =
     match domain_of_reverse_path from_addr with

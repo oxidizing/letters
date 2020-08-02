@@ -26,6 +26,7 @@ val build_email :
 
 val send :
   config:Config.t ->
+  sender:string ->
   recipients:recipient list ->
   message:Mrmime.Mt.t ->
   (unit, string) Lwt_result.t

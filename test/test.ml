@@ -20,6 +20,11 @@ let get_ethereal_account_details () =
   |> Lwt.return
 
 let test_send_email_using_ethereal_service config _ () =
+  let sender =
+    Yojson.Basic.from_file "../../../ethereal_account.json"
+    |> Yojson.Basic.Util.member "user"
+    |> Yojson.Basic.Util.to_string
+  in
   let recipients =
     [
       To "harry@example.com";
@@ -40,14 +45,14 @@ let test_send_email_using_ethereal_service config _ () =
       The team
 |}
   in
-  let message = build_email ~from:config.sender ~recipients ~subject ~body in
-  let* res = send ~config ~recipients ~message in
+  let message = build_email ~from:sender ~recipients ~subject ~body in
+  let* res = send ~config ~sender ~recipients ~message in
   match res with Ok () -> Lwt.return () | Error msg -> failwith msg
 
 (* Run it *)
 let () =
   Lwt_main.run
-    (let* (conf : config) = get_ethereal_account_details () in
+    (let* conf = get_ethereal_account_details () in
      Alcotest_lwt.run "STMP client"
        [
          ( "Send emails",
