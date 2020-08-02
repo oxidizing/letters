@@ -14,18 +14,17 @@ let get_ethereal_account_details () =
   let hostname = smtp_node |> member "host" |> to_string in
   let port = smtp_node |> member "port" |> to_int in
   let with_starttls = smtp_node |> member "secure" |> to_bool |> not in
-  Lwt.return
-    {
-      sender = username;
-      username;
-      password;
-      hostname;
-      port = Some port;
-      with_starttls;
-      ca_dir = "/etc/ssl/certs";
-    }
+  Config.make ~username ~password ~hostname ~with_starttls
+  |> Config.set_port (Some port)
+  |> Config.set_ca_dir (Some "/etc/ssl/certs")
+  |> Lwt.return
 
 let test_send_plain_text_email config _ () =
+  let sender =
+    Yojson.Basic.from_file "../../../ethereal_account.json"
+    |> Yojson.Basic.Util.member "user"
+    |> Yojson.Basic.Util.to_string
+  in
   let recipients =
     [
       To "harry@example.com";
@@ -46,12 +45,17 @@ Regards,
 The team
 |}
   in
-  let mail = build_email ~from:config.sender ~recipients ~subject ~body in
+  let mail = build_email ~from:sender ~recipients ~subject ~body in
   match mail with
-    | Ok message -> send ~config ~recipients ~message
-    | Error reason -> Lwt.fail_with reason
+  | Ok message -> send ~config ~sender ~recipients ~message
+  | Error reason -> Lwt.fail_with reason
 
 let test_send_html_email config _ () =
+  let sender =
+    Yojson.Basic.from_file "../../../ethereal_account.json"
+    |> Yojson.Basic.Util.member "user"
+    |> Yojson.Basic.Util.to_string
+  in
   let recipients =
     [
       To "harry@example.com";
@@ -73,12 +77,17 @@ The team
 </p>
 |}
   in
-  let mail = build_email ~from:config.sender ~recipients ~subject ~body in
+  let mail = build_email ~from:sender ~recipients ~subject ~body in
   match mail with
-    | Ok message -> send ~config ~recipients ~message
-    | Error reason -> Lwt.fail_with reason
+  | Ok message -> send ~config ~sender ~recipients ~message
+  | Error reason -> Lwt.fail_with reason
 
 let test_send_mixed_body_email config _ () =
+  let sender =
+    Yojson.Basic.from_file "../../../ethereal_account.json"
+    |> Yojson.Basic.Util.member "user"
+    |> Yojson.Basic.Util.to_string
+  in
   let recipients =
     [
       To "harry@example.com";
@@ -109,15 +118,15 @@ The team
 </p>
 |}
   in
-  let mail = build_email ~from:config.sender ~recipients ~subject ~body:(Mixed (text, html, None)) in
+  let mail = build_email ~from:sender ~recipients ~subject ~body:(Mixed (text, html, None)) in
   match mail with
-    | Ok message -> send ~config ~recipients ~message
-    | Error reason -> Lwt.fail_with reason
+  | Ok message -> send ~config ~sender ~recipients ~message
+  | Error reason -> Lwt.fail_with reason
 
 (* Run it *)
 let () =
   Lwt_main.run
-    (let* (conf : config) = get_ethereal_account_details () in
+     (let* conf = get_ethereal_account_details () in
      Alcotest_lwt.run "STMP client"
        [
          ( "use ethereal.email service",

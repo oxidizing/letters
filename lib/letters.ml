@@ -1,12 +1,20 @@
-type config = {
-  sender : string;
-  username : string;
-  password : string;
-  hostname : string;
-  port : int option;
-  with_starttls : bool;
-  ca_dir : string;
-}
+module Config = struct
+  type t = {
+    username : string;
+    password : string;
+    hostname : string;
+    port : int option;
+    with_starttls : bool;
+    ca_dir : string option;
+  }
+
+  let make ~username ~password ~hostname ~with_starttls =
+    { username; password; hostname; with_starttls; port = None; ca_dir = None }
+
+  let set_port port config = { config with port }
+
+  let set_ca_dir ca_dir config = { config with ca_dir }
+end
 
 type body = Plain of string | Html of string | Mixed of string * string * (string option)
 
@@ -163,7 +171,8 @@ let build_email ~from ~recipients ~subject ~body =
   | Invalid_email_address address -> Error (Printf.sprintf "Invalid email address: %s" address)
   | ex -> Error (Printexc.to_string ex)
 
-let send ~config:c ~recipients:r ~message:m =
+let send ~config:c ~sender ~recipients ~message =
+  let open Config in
   let ( let* ) = Lwt.bind in
   let authentication : Sendmail.authentication =
     { username = c.username; password = c.password; mechanism = Sendmail.PLAIN }
@@ -174,9 +183,9 @@ let send ~config:c ~recipients:r ~message:m =
     | None, false -> 465
     | Some v, _ -> v
   in
-  let mail = Mrmime.Mt.to_stream m in
+  let mail = Mrmime.Mt.to_stream message in
   let from_mailbox =
-    match Emile.of_string c.sender with
+    match Emile.of_string sender with
     | Ok v -> v
     | Error `Invalid -> failwith "Invalid sender address"
   in
@@ -190,7 +199,7 @@ let send ~config:c ~recipients:r ~message:m =
       (fun recipient ->
         (match recipient with To a -> a | Cc a -> a | Bcc a -> a)
         |> str_to_colombe_address)
-      r
+      recipients
   in
   let domain =
     match domain_of_reverse_path from_addr with
