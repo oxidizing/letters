@@ -33,7 +33,7 @@ val build_email :
   (Mrmime.Mt.t, string) result
 (** Build an email using mrmime
  ** This function is a helper function to simplify process of building an email
- ** with `mrmime`. It will return result type and wrapps all exceptions into Error
+ ** with `mrmime`. It will return result type and wraps all exceptions into Error
  ** [from] string representation of the email proved as a `from` field, this can
  ** be a different email address than the [config.sender].
  ** [recipients] list of email recipients
