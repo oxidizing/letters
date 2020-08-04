@@ -27,7 +27,7 @@
   (ptime (>= 0.8.5))
   (lwt (>= 5.2.0))
   (fpath (>= 0.7.0))
-  (ca-certs :dev)
+  ;; (ca-certs :dev)
 
   ;; Test dependencies
   (alcotest (and (>= 1.1.0) :with-test))

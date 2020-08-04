@@ -20,7 +20,6 @@ depends: [
   "ptime" {>= "0.8.5"}
   "lwt" {>= "5.2.0"}
   "fpath" {>= "0.7.0"}
-  "ca-certs" {dev}
   "alcotest" {>= "1.1.0" & with-test}
   "alcotest-lwt" {>= "1.1.0" & with-test}
   "yojson" {>= "1.7.0" & with-test}
