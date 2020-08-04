@@ -11,10 +11,10 @@ module Config : sig
   (** Build a configuration record for the SMTP server
    ** This is a helper to build a configuration.
    **
-   ** [sender] email address of the user
    ** [username] username needed for the login
    ** [password] user's password for the login
    ** [hostname] hostname of the SMTP server
+   ** [with_starttls] True if start unencrypted connection and then "promote"
    ** *)
 
   val set_port : int option -> t -> t
