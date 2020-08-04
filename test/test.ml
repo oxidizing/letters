@@ -46,9 +46,10 @@ let test_send_email_using_ethereal_service config _ () =
       The team
 |}
   in
-  let message = build_email ~from:config.sender ~recipients ~subject ~body in
-  let* res = send ~config ~recipients ~message in
-  match res with Ok () -> Lwt.return () | Error msg -> failwith msg
+  let email = build_email ~from:config.sender ~recipients ~subject ~body in
+  match email with
+  | Ok message -> send ~config ~recipients ~message
+  | Error reason -> failwith reason
 
 (* Run it *)
 let () =
