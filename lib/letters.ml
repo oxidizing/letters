@@ -16,9 +16,13 @@ module Config = struct
   let set_ca_dir ca_dir config = { config with ca_dir }
 end
 
-type body = Plain of string | Html of string
+type body = Plain of string | Html of string | Mixed of string * string * (string option)
+
+type mt_body = MtSimple of Mrmime.Mt.part | MtMultipart of Mrmime.Mt.multipart
 
 type recipient = To of string | Cc of string | Bcc of string
+
+exception Invalid_email_address of string
 
 let stream_of_string s =
   let once = ref false in
@@ -33,9 +37,9 @@ let str_to_colombe_address str_address =
   | Ok mailbox -> (
       match Colombe_emile.to_forward_path mailbox with
       | Ok address -> address
-      | Error _ ->
-          failwith (Printf.sprintf "Invalid email address: %s" str_address) )
-  | Error _ -> failwith (Printf.sprintf "Invalid email address: %s" str_address)
+      | Error _ -> raise (Invalid_email_address str_address)
+    )
+  | Error _ -> raise (Invalid_email_address str_address)
 
 let domain_of_reverse_path = function
   | None -> Rresult.R.error_msgf "reverse-path is empty"
@@ -47,8 +51,8 @@ let to_recipient_to_address : recipient -> Mrmime.Address.t option =
   | To address -> (
       match Mrmime.Mailbox.of_string address with
       | Ok mailbox -> Some (Mrmime.Address.mailbox mailbox)
-      | Error _ ->
-          failwith (Fmt.strf "Invalid email address for 'to': %s" address) )
+      | Error _ -> raise (Invalid_email_address address)
+    )
   | Cc _ -> None
   | Bcc _ -> None
 
@@ -59,8 +63,8 @@ let cc_recipient_to_address : recipient -> Mrmime.Address.t option =
   | Cc address -> (
       match Mrmime.Mailbox.of_string address with
       | Ok mailbox -> Some (Mrmime.Address.mailbox mailbox)
-      | Error _ ->
-          failwith (Fmt.strf "Invalid email address for 'to': %s" address) )
+      | Error _ -> raise (Invalid_email_address address)
+    )
   | Bcc _ -> None
 
 let load_directory path =
@@ -93,59 +97,79 @@ let certs_of_pem_directory ?(ext = "crt") path =
 let now () = Some (Ptime_clock.now ())
 
 let build_email ~from ~recipients ~subject ~body =
-  let open Mrmime in
-  let subject = Unstructured.Craft.v subject in
-  let date = Date.of_ptime ~zone:Date.Zone.GMT (Ptime_clock.now ()) in
-  let from_addr =
-    match Mailbox.of_string from with
-    | Ok v -> v
-    | Error _ -> failwith "Invalid email address for 'from'"
-  in
-  let to_addresses = List.filter_map to_recipient_to_address recipients in
-  let cc_addresses = List.filter_map cc_recipient_to_address recipients in
-  let headers =
-    [
-      Field.(Field (Field_name.subject, Unstructured, subject));
-      Field.(Field (Field_name.date, Date, date));
-      Field.(Field (Field_name.from, Mailbox, from_addr));
-      Field.(Field (Field_name.v "To", Addresses, to_addresses));
-      Field.(Field (Field_name.cc, Addresses, cc_addresses));
-    ]
-  in
-  let plain_text_headers =
-    let content1 =
-      let open Content_type in
-      make `Text
-        (Subtype.v `Text "plain")
-        Parameters.(of_list [ (k "charset", v "utf-8") ])
+  try
+    let open Mrmime in
+    let subject = Unstructured.Craft.v subject in
+    let date = Date.of_ptime ~zone:Date.Zone.GMT (Ptime_clock.now ()) in
+    let from_addr =
+      match Mailbox.of_string from with
+      | Ok v -> v
+      | Error _ -> raise (Invalid_email_address from)
     in
-    Header.of_list
-      Field.
-        [
-          Field (Field_name.content_type, Content, content1);
-          Field (Field_name.content_encoding, Encoding, `Quoted_printable);
-        ]
-  in
-  let html_headers =
-    let content1 =
-      let open Content_type in
-      make `Text
-        (Subtype.v `Text "html")
-        Parameters.(of_list [ (k "charset", v "utf-8") ])
+    let to_addresses = List.filter_map to_recipient_to_address recipients in
+    let cc_addresses = List.filter_map cc_recipient_to_address recipients in
+    let headers =
+      [
+        Field.(Field (Field_name.subject, Unstructured, subject));
+        Field.(Field (Field_name.date, Date, date));
+        Field.(Field (Field_name.from, Mailbox, from_addr));
+        Field.(Field (Field_name.v "To", Addresses, to_addresses));
+        Field.(Field (Field_name.cc, Addresses, cc_addresses));
+      ]
     in
-    Header.of_list
-      Field.
-        [
-          Field (Field_name.content_type, Content, content1);
-          Field (Field_name.content_encoding, Encoding, `Quoted_printable);
-        ]
-  in
-  let body =
+    let plain_text_headers =
+      let content1 =
+        let open Content_type in
+        make `Text
+          (Subtype.v `Text "plain")
+          Parameters.(of_list [ (k "charset", v "utf-8") ])
+      in
+      Header.of_list
+        Field.
+          [
+            Field (Field_name.content_type, Content, content1);
+            Field (Field_name.content_encoding, Encoding, `Quoted_printable);
+          ]
+    in
+    let html_headers =
+      let content1 =
+        let open Content_type in
+        make `Text
+          (Subtype.v `Text "html")
+          Parameters.(of_list [ (k "charset", v "utf-8") ])
+      in
+      Header.of_list
+        Field.
+          [
+            Field (Field_name.content_type, Content, content1);
+            Field (Field_name.content_encoding, Encoding, `Quoted_printable);
+          ]
+    in
+    let body =
+      let multipart_content_alternative =
+        let open Content_type in
+        Content_type.make `Multipart (Subtype.v `Multipart "alternative") Parameters.empty
+      in
+      match body with
+      | Plain text -> MtSimple (Mt.part ~header:plain_text_headers (stream_of_string text))
+      | Html html -> MtSimple (Mt.part ~header:html_headers (stream_of_string html))
+      | Mixed (text, html, boundary) ->
+        let plain = Mt.part ~header:plain_text_headers (stream_of_string text) in
+        let html = Mt.part ~header:html_headers (stream_of_string html) in
+        let header = Header.of_list [
+            Field (Field_name.content_type, Content, multipart_content_alternative)
+          ]
+        in
+        match boundary with
+        | None -> MtMultipart (Mt.multipart ~rng:Mt.rng ~header [ plain; html ])
+        | Some boundary -> MtMultipart (Mt.multipart ~rng:Mt.rng ~header ~boundary [ plain; html ])
+    in
     match body with
-    | Plain text -> Mt.part ~header:plain_text_headers (stream_of_string text)
-    | Html text -> Mt.part ~header:html_headers (stream_of_string text)
-  in
-  Mt.make (Mrmime.Header.of_list headers) Mt.simple body
+    | MtSimple part -> Ok (Mt.make (Mrmime.Header.of_list headers) Mt.simple part)
+    | MtMultipart multi -> Ok (Mt.make (Mrmime.Header.of_list headers) Mt.multi multi)
+  with
+  | Invalid_email_address address -> Error (Printf.sprintf "Invalid email address: %s" address)
+  | ex -> Error (Printexc.to_string ex)
 
 let send ~config:c ~sender ~recipients ~message =
   let open Config in
@@ -209,7 +233,7 @@ let send ~config:c ~sender ~recipients ~message =
         ~tls_authenticator ~from:from_addr ~recipients ~mail
     in
     match res with
-    | Ok () -> Lwt.return (Ok ())
+    | Ok () -> Lwt.return ()
     | Error err ->
         Lwt.fail_with
           (Fmt.str "Sending email failed, %a" Sendmail_with_tls.pp_error err)
@@ -219,6 +243,6 @@ let send ~config:c ~sender ~recipients ~message =
         ~tls_authenticator ~from:from_addr ~recipients ~mail
     in
     match res with
-    | Ok () -> Lwt.return (Ok ())
+    | Ok () -> Lwt.return ()
     | Error err ->
         Lwt.fail_with (Fmt.str "Sending email failed, %a" Sendmail.pp_error err)

@@ -5,12 +5,9 @@
   alcotest
   alcotest-lwt
   lwt
+  yojson
  )
 )
-
-(rule
- (alias runtest)
- (action (run ./test.exe)))
 
 (rule
  (alias runtest-all)
