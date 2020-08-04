@@ -17,10 +17,10 @@ val build_email :
   recipients:recipient list ->
   subject:string ->
   body:body ->
-  Mrmime.Mt.t
+  (Mrmime.Mt.t, string) result
 
 val send :
   config:config ->
   recipients:recipient list ->
   message:Mrmime.Mt.t ->
-  (unit, string) Lwt_result.t
+  (unit Lwt.t)
