@@ -35,7 +35,10 @@ module Config : sig
    ** *)
 end
 
-type body = Plain of string | Html of string | Mixed of string * string * (string option)
+type body =
+  | Plain of string
+  | Html of string
+  | Mixed of string * string * string option
 
 type recipient = To of string | Cc of string | Bcc of string
 
@@ -63,7 +66,7 @@ val send :
   sender:string ->
   recipients:recipient list ->
   message:Mrmime.Mt.t ->
-  (unit Lwt.t)
+  unit Lwt.t
 (** Send the previously generated email
  ** This function expects valid configuration, list of recipients and finally a
  ** valid `mrmime` representation of the email message.

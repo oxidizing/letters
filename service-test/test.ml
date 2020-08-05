@@ -34,7 +34,8 @@ let test_send_plain_text_email config _ () =
   in
   let subject = "Plain text test email" in
   let body =
-    Plain {|
+    Plain
+      {|
 Hi there,
 
 have you already seen the very cool new web framework written in ocaml:
@@ -65,7 +66,8 @@ let test_send_html_email config _ () =
   in
   let subject = "HTML only test email" in
   let body =
-    Html {|
+    Html
+      {|
 <p>Hi there,</p>
 <p>
   have you already seen the very cool new web framework written in ocaml:
@@ -96,7 +98,8 @@ let test_send_mixed_body_email config _ () =
     ]
   in
   let subject = "Mixed body email with plain text and HTML" in
-  let text = {|
+  let text =
+    {|
 Hi there,
 
 have you already seen the very cool new web framework written in ocaml:
@@ -106,7 +109,8 @@ Regards,
 The team
 |}
   in
-  let html = {|
+  let html =
+    {|
 <p>Hi there,</p>
 <p>
   have you already seen the very cool new web framework written in ocaml:
@@ -117,7 +121,10 @@ The team
 </p>
 |}
   in
-  let mail = build_email ~from:sender ~recipients ~subject ~body:(Mixed (text, html, None)) in
+  let mail =
+    build_email ~from:sender ~recipients ~subject
+      ~body:(Mixed (text, html, None))
+  in
   match mail with
   | Ok message -> send ~config ~sender ~recipients ~message
   | Error reason -> Lwt.fail_with reason
