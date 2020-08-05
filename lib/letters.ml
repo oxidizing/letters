@@ -5,15 +5,22 @@ module Config = struct
     hostname : string;
     port : int option;
     with_starttls : bool;
-    ca_dir : string option;
+    ca_bundle_path : string option;
   }
 
   let make ~username ~password ~hostname ~with_starttls =
-    { username; password; hostname; with_starttls; port = None; ca_dir = None }
+    {
+      username;
+      password;
+      hostname;
+      with_starttls;
+      port = None;
+      ca_bundle_path = None;
+    }
 
   let set_port port config = { config with port }
 
-  let set_ca_dir ca_dir config = { config with ca_dir }
+  let set_ca_bundle_path ca_bundle_path config = { config with ca_bundle_path }
 end
 
 type body =
@@ -67,11 +74,6 @@ let cc_recipient_to_address : recipient -> Mrmime.Address.t option =
       | Error _ -> raise (Invalid_email_address address) )
   | Bcc _ -> None
 
-let load_directory path =
-  Lwt_unix.files_of_directory (Fpath.to_string path)
-  |> Lwt_stream.map (Fpath.add_seg path)
-  |> Lwt_stream.to_list
-
 let load_file path =
   let open Lwt.Infix in
   Lwt_io.open_file ~mode:Lwt_io.Input (Fpath.to_string path) >>= fun ic ->
@@ -80,19 +82,13 @@ let load_file path =
   Lwt_io.read_into_exactly ic raw 0 len >>= fun () ->
   Lwt.return (Bytes.unsafe_to_string raw)
 
-let certs_of_pem path =
+let certs_of path =
   let ( <.> ) f g x = f (g x) in
   let open Lwt.Infix in
   load_file path
-  >|= (X509.Certificate.decode_pem <.> Cstruct.of_string)
+  (* TODO add support for .der files *)
+  >|= (X509.Certificate.decode_pem_multiple <.> Cstruct.of_string)
   >|= Rresult.R.get_ok
-
-let certs_of_pem_directory ?(ext = "crt") path =
-  let ( <.> ) f g x = f (g x) in
-  let open Lwt.Infix in
-  load_directory path
-  >>= Lwt_list.filter_p (Lwt.return <.> Fpath.has_ext ext)
-  >>= Lwt_list.map_p certs_of_pem
 
 let now () = Some (Ptime_clock.now ())
 
@@ -233,15 +229,15 @@ let send ~config:c ~sender ~recipients ~message =
   in
   let* detected_cert = Ca_certs.detect () in
   let path =
-    match (c.ca_dir, detected_cert) with
-    | Some dir, _ -> dir
-    | None, Some (`Ca_file dir) -> dir
-    | None, None -> failwith "No CA certificates directory provided or found"
+    match (c.ca_bundle_path, detected_cert) with
+    | Some bundle, _ -> bundle
+    | None, Some (`Ca_file bundle) -> bundle
+    | None, None -> failwith "No CA certificates bundle provided or found"
   in
   let* certs =
     match Fpath.of_string path with
-    | Ok path -> certs_of_pem_directory ~ext:"pem" path
-    | Error _ -> failwith "Failed to open CA certificates directory"
+    | Ok path -> certs_of path
+    | Error _ -> failwith "Failed to read CA certificates bundle"
   in
   let tls_authenticator = X509.Authenticator.chain_of_trust ~time:now certs in
   if c.with_starttls then
