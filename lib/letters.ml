@@ -134,9 +134,7 @@ let build_email ~from ~recipients ~subject ~body =
     let body =
       let multipart_content_alternative =
         let open Content_type in
-        Content_type.make `Multipart
-          (Subtype.v `Multipart "alternative")
-          Parameters.empty
+        make `Multipart (Subtype.v `Multipart "alternative") Parameters.empty
       in
       match body with
       | Plain text ->
