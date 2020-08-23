@@ -132,16 +132,56 @@ The team
 (* Run it *)
 let () =
   Lwt_main.run
-     (let* conf = get_ethereal_account_details () in
+    (let* conf_with_ca_detect = get_ethereal_account_details () in
+     let conf_with_ca_cert_bundle =
+       Config.set_ca_cert "/etc/ssl/certs/ca-certificates.crt"
+         conf_with_ca_detect
+     in
+     let conf_with_single_ca_cert =
+       (* ethereal.mail's certificate is signed with Let's Encrypt Authority X3
+        *  that signed by DST Root CA X3 *)
+       Config.set_ca_cert "/etc/ssl/certs/DST_Root_CA_X3.pem"
+         conf_with_ca_detect
+     in
+     let conf_with_ca_path =
+       Config.set_ca_path "/etc/ssl/certs/" conf_with_ca_detect
+     in
      Alcotest_lwt.run "STMP client"
        [
-         ( "use ethereal.email service",
+         ( "use ethereal.email, auto-detect CA certs",
            [
-             Alcotest_lwt.test_case "Send plain text email" `Quick
-               (test_send_plain_text_email conf);
-             Alcotest_lwt.test_case "Send html email" `Quick
-               (test_send_html_email conf);
-             Alcotest_lwt.test_case "Send send mixed body email" `Quick
-               (test_send_mixed_body_email conf);
+             Alcotest_lwt.test_case "Send plain text email" `Slow
+               (test_send_plain_text_email conf_with_ca_detect);
+             Alcotest_lwt.test_case "Send html email" `Slow
+               (test_send_html_email conf_with_ca_detect);
+             Alcotest_lwt.test_case "Send send mixed body email" `Slow
+               (test_send_mixed_body_email conf_with_ca_detect);
+           ] );
+         ( "use ethereal.email, define certificate bundle location",
+           [
+             Alcotest_lwt.test_case "Send plain text email" `Slow
+               (test_send_plain_text_email conf_with_ca_cert_bundle);
+             Alcotest_lwt.test_case "Send html email" `Slow
+               (test_send_html_email conf_with_ca_cert_bundle);
+             Alcotest_lwt.test_case "Send send mixed body email" `Slow
+               (test_send_mixed_body_email conf_with_ca_cert_bundle);
+           ] );
+         ( "use ethereal.email, define location single CA cert",
+           [
+             Alcotest_lwt.test_case "Send plain text email" `Slow
+               (test_send_plain_text_email conf_with_single_ca_cert);
+             Alcotest_lwt.test_case "Send html email" `Slow
+               (test_send_html_email conf_with_single_ca_cert);
+             Alcotest_lwt.test_case "Send send mixed body email" `Slow
+               (test_send_mixed_body_email conf_with_single_ca_cert);
+           ] );
+         ( "use ethereal.email, define PEM folder path",
+           [
+             Alcotest_lwt.test_case "Send plain text email" `Slow
+               (test_send_plain_text_email conf_with_ca_path);
+             Alcotest_lwt.test_case "Send html email" `Slow
+               (test_send_html_email conf_with_ca_path);
+             Alcotest_lwt.test_case "Send send mixed body email" `Slow
+               (test_send_mixed_body_email conf_with_ca_path);
            ] );
        ])

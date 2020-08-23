@@ -1,11 +1,13 @@
 module Config = struct
+  type ca_certs = Ca_cert of string | Ca_path of string | Detect
+
   type t = {
     username : string;
     password : string;
     hostname : string;
     port : int option;
     with_starttls : bool;
-    ca_bundle_path : string option;
+    ca_certs : ca_certs;
   }
 
   let make ~username ~password ~hostname ~with_starttls =
@@ -15,12 +17,16 @@ module Config = struct
       hostname;
       with_starttls;
       port = None;
-      ca_bundle_path = None;
+      ca_certs = Detect;
     }
 
   let set_port port config = { config with port }
 
-  let set_ca_bundle_path ca_bundle_path config = { config with ca_bundle_path }
+  let set_ca_cert path config =
+    { config with ca_certs = Ca_cert path }
+
+  let set_ca_path path config =
+    { config with ca_certs = Ca_path path }
 end
 
 type body =
@@ -73,22 +79,6 @@ let cc_recipient_to_address : recipient -> Mrmime.Address.t option =
       | Ok mailbox -> Some (Mrmime.Address.mailbox mailbox)
       | Error _ -> raise (Invalid_email_address address) )
   | Bcc _ -> None
-
-let load_file path =
-  let open Lwt.Infix in
-  Lwt_io.open_file ~mode:Lwt_io.Input (Fpath.to_string path) >>= fun ic ->
-  Lwt_io.length ic >|= Int64.to_int >>= fun len ->
-  let raw = Bytes.create len in
-  Lwt_io.read_into_exactly ic raw 0 len >>= fun () ->
-  Lwt.return (Bytes.unsafe_to_string raw)
-
-let certs_of path =
-  let ( <.> ) f g x = f (g x) in
-  let open Lwt.Infix in
-  load_file path
-  (* TODO add support for .der files *)
-  >|= (X509.Certificate.decode_pem_multiple <.> Cstruct.of_string)
-  >|= Rresult.R.get_ok
 
 let now () = Some (Ptime_clock.now ())
 
@@ -184,6 +174,16 @@ let build_email ~from ~recipients ~subject ~body =
       Error (Printf.sprintf "Invalid email address: %s" address)
   | ex -> Error (Printexc.to_string ex)
 
+let ca_cert_peer_verifier path =
+  let ( let* ) = Lwt.bind in
+  let* certs = X509_lwt.certs_of_pem path in
+  Lwt.return (X509.Authenticator.chain_of_trust ~time:now certs)
+
+let ca_path_peer_verifier path =
+  let ( let* ) = Lwt.bind in
+  let* certs = X509_lwt.certs_of_pem_dir path in
+  Lwt.return (X509.Authenticator.chain_of_trust ~time:now certs)
+
 let send ~config:c ~sender ~recipients ~message =
   let open Config in
   let ( let* ) = Lwt.bind in
@@ -227,23 +227,20 @@ let send ~config:c ~sender ~recipients ~message =
         | Error _ -> failwith "Config hostname is not valid hostname"
         | Ok hostname -> hostname )
   in
-  let* detected_cert = Ca_certs.detect () in
-  let path =
-    match (c.ca_bundle_path, detected_cert) with
-    | Some bundle, _ -> bundle
-    | None, Some (`Ca_file bundle) -> bundle
-    | None, None -> failwith "No CA certificates bundle provided or found"
+  let* tls_peer_verifier =
+    match c.ca_certs with
+    | Ca_path path -> ca_path_peer_verifier path
+    | Ca_cert path -> ca_cert_peer_verifier path
+    | Detect -> (
+        let* cert = Ca_certs.detect () in
+        match cert with
+        | Some (`Ca_file path) -> ca_cert_peer_verifier path
+        | None -> failwith "Could not find CA certificate bundle" )
   in
-  let* certs =
-    match Fpath.of_string path with
-    | Ok path -> certs_of path
-    | Error _ -> failwith "Failed to read CA certificates bundle"
-  in
-  let tls_authenticator = X509.Authenticator.chain_of_trust ~time:now certs in
   if c.with_starttls then
     let* res =
       Sendmail_handler.run_with_starttls ~hostname ~port ~domain ~authentication
-        ~tls_authenticator ~from:from_addr ~recipients ~mail
+        ~tls_authenticator:tls_peer_verifier ~from:from_addr ~recipients ~mail
     in
     match res with
     | Ok () -> Lwt.return ()
@@ -253,7 +250,7 @@ let send ~config:c ~sender ~recipients ~message =
   else
     let* res =
       Sendmail_handler.run ~hostname ~port ~domain ~authentication
-        ~tls_authenticator ~from:from_addr ~recipients ~mail
+        ~tls_authenticator:tls_peer_verifier ~from:from_addr ~recipients ~mail
     in
     match res with
     | Ok () -> Lwt.return ()
