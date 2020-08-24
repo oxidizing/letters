@@ -16,7 +16,6 @@ let get_ethereal_account_details () =
   let with_starttls = smtp_node |> member "secure" |> to_bool |> not in
   Config.make ~username ~password ~hostname ~with_starttls
   |> Config.set_port (Some port)
-  |> Config.set_ca_dir (Some "/etc/ssl/certs")
   |> Lwt.return
 
 let test_send_plain_text_email config _ () =

@@ -24,13 +24,14 @@ module Config : sig
    ** The port is used to connect the SMTP server or None for using default port
    ** *)
 
-  val set_ca_dir : Lwt_io.file_name option -> t -> t
-  (** Add a ca cert dir to configuration record
+  (* TODO support non-bundles *)
+  val set_ca_bundle_path : Lwt_io.file_name option -> t -> t
+  (** Add a ca cert bundle path to configuration record
    ** This is a helper function to allow builder pattern.
    ** Creates a new config with the provided optional ca cert dir and old config.
    ** This library does not allow unencrypted SMTP connections.
-   ** The ca cert dir is the system location where all CA certificates (in PEM
-   ** format) are expected to be found when verifying server certificate.
+   ** The ca cert bundle path is the system location where the CA certificate
+   ** bundle are expected to be found when verifying server certificate.
    ** *)
 end
 
