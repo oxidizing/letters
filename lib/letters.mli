@@ -1,27 +1,44 @@
-type config = {
-  sender : string;
-  username : string;
-  password : string;
-  hostname : string;
-  port : int option;
-  with_starttls : bool;
-  ca_dir : string;
-}
-(** Configuration providing needed information to connect the SMTP server.
- **
- ** [sender] email address of the user
- ** [username] username needed for the login
- ** [password] user's password for the login
- ** [hostname] hostname of the SMTP server
- ** [port] port used to connect the SMTP server or None for using default port
- ** [with_starttls] True if start unencrypted connection and then "promote"
- ** the connection into encrypted one. False will start TLS encrypted connection.
- ** This library does not allow unencrypted SMTP connections.
- ** [ca_dir] system location where all CA certificates (in PEM format) are
- ** expected to be found when verifying server certificate.
- ** *)
+(** Configuration providing needed information to connect to the SMTP server. *)
+module Config : sig
+  type t
 
-type body = Plain of string | Html of string | Mixed of string * string * (string option)
+  val make :
+    username:string ->
+    password:string ->
+    hostname:string ->
+    with_starttls:bool ->
+    t
+  (** Build a configuration record for the SMTP server
+   ** This is a helper to build a configuration.
+   **
+   ** [username] username needed for the login
+   ** [password] user's password for the login
+   ** [hostname] hostname of the SMTP server
+   ** [with_starttls] True if start unencrypted connection and then "promote"
+   ** *)
+
+  val set_port : int option -> t -> t
+  (** Add a port to configuration record
+   ** This is a helper function to allow builder pattern.
+   ** Creates a new config with the provided optional port and old config.
+   ** The port is used to connect the SMTP server or None for using default port
+   ** *)
+
+  (* TODO support non-bundles *)
+  val set_ca_bundle_path : Lwt_io.file_name option -> t -> t
+  (** Add a ca cert bundle path to configuration record
+   ** This is a helper function to allow builder pattern.
+   ** Creates a new config with the provided optional ca cert dir and old config.
+   ** This library does not allow unencrypted SMTP connections.
+   ** The ca cert bundle path is the system location where the CA certificate
+   ** bundle are expected to be found when verifying server certificate.
+   ** *)
+end
+
+type body =
+  | Plain of string
+  | Html of string
+  | Mixed of string * string * string option
 
 type recipient = To of string | Cc of string | Bcc of string
 
@@ -45,10 +62,11 @@ val build_email :
  ** *)
 
 val send :
-  config:config ->
+  config:Config.t ->
+  sender:string ->
   recipients:recipient list ->
   message:Mrmime.Mt.t ->
-  (unit Lwt.t)
+  unit Lwt.t
 (** Send the previously generated email
  ** This function expects valid configuration, list of recipients and finally a
  ** valid `mrmime` representation of the email message.
