@@ -78,6 +78,7 @@ val send :
  ** This function expects valid configuration, list of recipients and finally a
  ** valid `mrmime` representation of the email message.
  ** [config] valid configuration to connect the SMTP server.
+ ** [sender] address where servers should send failure or error replies.
  ** [recipients] list of valid email addresses.
  ** [message] valid `mrmime` representation of the email message.
  ** Runs asynchronously using Lwt and retuns unit when the message is sent
