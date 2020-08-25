@@ -24,14 +24,21 @@ module Config : sig
    ** The port is used to connect the SMTP server or None for using default port
    ** *)
 
-  (* TODO support non-bundles *)
-  val set_ca_bundle_path : Lwt_io.file_name option -> t -> t
-  (** Add a ca cert bundle path to configuration record
-   ** This is a helper function to allow builder pattern.
-   ** Creates a new config with the provided optional ca cert dir and old config.
-   ** This library does not allow unencrypted SMTP connections.
-   ** The ca cert bundle path is the system location where the CA certificate
-   ** bundle are expected to be found when verifying server certificate.
+  val set_ca_cert : Lwt_io.file_name -> t -> t
+  (** Tells letters to use the specified certificate to verify the peer.
+   **
+   ** The file may contain multiple CA certificates. The certificate(s) must be in
+   ** PEM format.
+   **
+   ** Creates a new config with the provided CA cert and old config.
+   ** *)
+
+  val set_ca_path : Lwt_io.file_name -> t -> t
+  (** Tells letters to use the specified certificate director to verify the peer.
+   **
+   ** Each certificate in the folder must be in PEM format.
+   **
+   ** Creates a new config with the provided CA cert dir and old config.
    ** *)
 end
 
@@ -71,6 +78,7 @@ val send :
  ** This function expects valid configuration, list of recipients and finally a
  ** valid `mrmime` representation of the email message.
  ** [config] valid configuration to connect the SMTP server.
+ ** [sender] address where servers should send failure or error replies.
  ** [recipients] list of valid email addresses.
  ** [message] valid `mrmime` representation of the email message.
  ** Runs asynchronously using Lwt and retuns unit when the message is sent
