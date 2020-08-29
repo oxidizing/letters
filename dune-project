@@ -33,6 +33,9 @@
   (alcotest-lwt (and (>= 1.1.0) :with-test))
   (yojson (and (>= 1.7.0) :with-test))
 
+  ;; Documentation dependencies
+  (odoc :with-doc)
+
   ;; Dev dependencies
   (ocamlformat :dev)
  )
