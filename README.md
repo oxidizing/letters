@@ -1,4 +1,4 @@
-# &#9993; Letters &middot; [![CircleCI](https://circleci.com/gh/oxidizing/letters.svg?style=shield)](https://circleci.com/gh/oxidizing/letters) ![GitHub](https://img.shields.io/github/license/oxidizing/letters)
+# &#9993; Letters &middot; ![GitHub](https://img.shields.io/github/license/oxidizing/letters)
 
 Letters is a library for creating and sending emails over SMTP using [Lwt](https://github.com/ocsigen/lwt).
 
