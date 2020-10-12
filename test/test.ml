@@ -5,11 +5,12 @@ let stream_to_string s =
   let rec go () =
     match s () with
     | Some (buf, off, len) ->
-        Buffer.add_substring b buf off len;
-        go ()
+      Buffer.add_substring b buf off len;
+      go ()
     | None -> Buffer.contents b
   in
   go ()
+;;
 
 let test_create_plain_text_email _ () =
   let recipients = [ To "dave@example.com" ] in
@@ -23,6 +24,7 @@ let test_create_plain_text_email _ () =
   in
   let message = stream_to_string stream in
   Lwt.return (print_string message)
+;;
 
 let test_create_html_email _ () =
   let recipients = [ To "dave@example.com" ] in
@@ -36,6 +38,7 @@ let test_create_html_email _ () =
   in
   let message = stream_to_string stream in
   Lwt.return (print_string message)
+;;
 
 let test_create_mixed_body_email _ () =
   let recipients = [ To "dave@example.com" ] in
@@ -49,18 +52,25 @@ let test_create_mixed_body_email _ () =
   in
   let message = stream_to_string stream in
   Lwt.return (print_string message)
+;;
 
 let () =
   Lwt_main.run
-    (Alcotest_lwt.run "Email creation"
-       [
-         ( "Generating body",
-           [
-             Alcotest_lwt.test_case "email with plain text body" `Quick
-               test_create_plain_text_email;
-             Alcotest_lwt.test_case "email with HTML text body" `Quick
-               test_create_html_email;
-             Alcotest_lwt.test_case "email with mixed plain text and HTML body"
-               `Quick test_create_mixed_body_email;
-           ] );
+    (Alcotest_lwt.run
+       "Email creation"
+       [ ( "Generating body"
+         , [ Alcotest_lwt.test_case
+               "email with plain text body"
+               `Quick
+               test_create_plain_text_email
+           ; Alcotest_lwt.test_case
+               "email with HTML text body"
+               `Quick
+               test_create_html_email
+           ; Alcotest_lwt.test_case
+               "email with mixed plain text and HTML body"
+               `Quick
+               test_create_mixed_body_email
+           ] )
        ])
+;;
