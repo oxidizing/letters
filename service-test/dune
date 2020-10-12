@@ -1,14 +1,8 @@
 (executable
  (name test)
- (libraries
-  letters
-  alcotest
-  alcotest-lwt
-  lwt
-  yojson
- )
-)
+ (libraries letters alcotest alcotest-lwt lwt yojson))
 
 (rule
  (alias runtest-all)
- (action (run ./test.exe)))
+ (action
+  (run ./test.exe)))
