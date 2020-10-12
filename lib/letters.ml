@@ -192,7 +192,7 @@ let send ~config:c ~sender ~recipients ~message =
   let from_mailbox =
     match Emile.of_string sender with
     | Ok v -> v
-    | Error `Invalid -> failwith "Invalid sender address"
+    | Error (`Invalid (_,_)) -> failwith "Invalid sender address"
   in
   let from_addr =
     match Colombe_emile.to_reverse_path from_mailbox with
