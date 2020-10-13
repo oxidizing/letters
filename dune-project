@@ -19,7 +19,8 @@
  (depends
   (ocaml (>= 4.08.1))
   (dune (>= 2.3))
-  (mrmime (>= 0.3.0))
+  (emile (>= 1.0))
+  (mrmime (>= 0.3.1))
   (colombe (>= 0.3.0))
   (sendmail-lwt (>= 0.3.0))
   (fmt (>= 0.8.8))
