@@ -12,10 +12,9 @@ bug-reports: "https://github.com/oxidizing/letters/issues"
 depends: [
   "ocaml" {>= "4.08.1"}
   "dune" {>= "2.3"}
-  "emile" {>= "1.0"}
   "mrmime" {>= "0.3.1"}
-  "colombe" {>= "0.3.0"}
-  "sendmail-lwt" {>= "0.3.0"}
+  "colombe" {>= "0.4.0"}
+  "sendmail" {>= "0.4.0"}
   "fmt" {>= "0.8.8"}
   "x509" {>= "0.9.0"}
   "ptime" {>= "0.8.5"}
