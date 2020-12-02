@@ -78,7 +78,7 @@ Building an email is separated into its own step so that you can use [mrmime](ht
 To use our provided API, you can build three kinds of emails:
 1. `Plain`, plain text
 2. `Html`, HTML only
-3. `Mixed`, multipart/alternative containing both: plain text and HTMl segments
+3. `Mixed`, multipart/alternative containing both: plain text and HTML segments
 
 If you're not sure, either use `Plain` or `Mixed`.
 
@@ -93,7 +93,7 @@ let recipients =
     Bcc "dave@example.com";
   ]
 in
-let subject = "HTML only test email" in
+let subject = "Plain text only test email" in
 let body =
   Plain
     {|
@@ -136,7 +136,7 @@ in
 let mail = build_email ~from:sender ~recipients ~subject ~body in
 ```
 
-Example of building an email with plain text and HTMl segments:
+Example of building an email with plain text and HTML segments:
 
 ``` ocaml
 let sender = "harry@example.com" in
@@ -147,7 +147,7 @@ let recipients =
     Bcc "dave@example.com";
   ]
 in
-let subject = "HTML only test email" in
+let subject = "Mixed plain text / HTML test email" in
 let text =
   {|
 Hi there,
