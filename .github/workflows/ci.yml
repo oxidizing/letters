@@ -10,7 +10,8 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-latest
+          # Disable macos build for now since it keeps failing with dune not found
+          # - macos-latest
           - ubuntu-latest
         ocaml-version:
           - 4.11.1
