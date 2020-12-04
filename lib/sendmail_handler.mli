@@ -7,7 +7,7 @@ val run_with_starttls
   -> from:Colombe.Reverse_path.t
   -> recipients:Colombe.Forward_path.t list
   -> mail:Mrmime.Mt.buffer Mrmime.Mt.stream
-  -> (unit, Sendmail_with_tls.error) Lwt_result.t
+  -> (unit, Sendmail_with_starttls.error) Lwt_result.t
 
 val run
   :  hostname:'a Domain_name.t

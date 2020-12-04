@@ -45,7 +45,7 @@ let run_with_starttls
     | None -> 465
   in
   let tls = Tls.Config.client ~authenticator:tls_authenticator () in
-  let ctx = Sendmail_with_tls.Context_with_tls.make () in
+  let ctx = Sendmail_with_starttls.Context_with_tls.make () in
   let open Lwt.Infix in
   Lwt_unix.gethostbyname (Domain_name.to_string hostname)
   >>= fun res ->
@@ -71,7 +71,7 @@ let run_with_starttls
       | None -> Lwt_scheduler.inj (Lwt.return None)
     in
     let fiber =
-      Sendmail_with_tls.sendmail
+      Sendmail_with_starttls.sendmail
         lwt
         rdwr
         { ic; oc }

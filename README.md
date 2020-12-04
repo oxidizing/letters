@@ -225,39 +225,50 @@ These tests are still somewhat far from good and you need to validate all result
 
 #### Service tests
 
-These tests are somewhat slow and fragile and because of that these are expected to be run manually.
+Because these tests are somewhat slow and fragile, you need to run them manually. Execution of these tests depends on test accounts on *ethereal.email* and *mailtrap.io*. Before execution, you need to create configuration files with authentication credentials for each service. You can generate these configuration files by using the shell command snippets given below, but for those you need to have `jq` application installed. If you don't have it or you don't want to install it, you can also create `ethereal_account.json` and `mailtrap_account.json` files manually. Both files have the following format:
 
-First create *ethereal.email* account and store account details
-
-``` shell
-curl -d '{ "requestor": "letters", "version": "dev" }' "https://api.nodemailer.com/user" -X POST -H "Content-Type: application/json" > ethereal_account.json
+``` json-with-comments
+{
+  "host": "smtp.ethereal.email or smtp.mailtrap.io",
+  "port": 587,
+  "username": "username for SMTP authentication",
+  "password": "password for SMTP authentication",
+  "secure": false // we will always use encryption, but `false` causes use of STARTTLS
+}
 ```
 
-Currently using `ethereal.email` service requires non-released version of `colombe` and
-you need to check out the project, commit `edf757c58fce58c170c63e8a92d3bc81fe4d32ff` contains the needed fix. Then the version with the fix needs to be pinned in the build env:
+To create temporary *ethereal.email* account and store the account details, you can execute the following one-liner:
 
 ``` shell
-# Move to folder where colombe is checked out
-pushd /path/to/colombe
-# Switch to correct git commit in colombe repo
-git switch --detach edf757c58fce58c170c63e8a92d3bc81fe4d32ff
-# Switch to use same opam env that is used by letters
-eval "$(opam env --switch $(dirs | cut -d ' ' -f 2) --set-switch)"
-# Pin this specific version of colombe (and all related packages)
-opam pin .
-# Finally, return back to letters project
-popd
+curl -s -d '{ "requestor": "letters", "version": "dev" }' "https://api.nodemailer.com/user" -X POST -H "Content-Type: application/json" | jq '{ hostname: .smtp.host, port: .smtp.port, secure: false, username: .user, password: .pass, }'> ethereal_account.json
 ```
 
-Then execute these tests (actually this runs all tests):
+For *mailtrap.io*, you need to create a personal account first and get the API key:
+- [signup](https://mailtrap.io/register/signup?ref=header)
+- [copy API token from Settings](https://mailtrap.io/settings)
+
+The configuration file you can create with following steps:
+- create environment variable containing your API token: `export MAILTRAP_API_TOKEN=<API token>`
+- run the following one-liner in terminal to create the configuration file:
+
+``` shell
+curl -s -H "Authorization: Bearer ${MAILTRAP_API_TOKEN}" "https://mailtrap.io/api/v1/inboxes" | jq '.[0] | { hostname: .domain, port: .smtp_ports[2], secure: false, username: .username, password: .password }' > mailtrap_account.json
+```
+
+Now you are ready to execute these tests. You can run them with the following command:
 
 ``` shell
 dune build @runtest-all
 ```
 
-And finally review that the email is correctly generated in the service:
+Finally review that all emails are correctly received in *ethreal.email*:
 - login to https://ethereal.email/login using credentials from the `ethereal_account.json`
-- check the content of messages: https://ethereal.email/messages
+- check the content of new messages: https://ethereal.email/messages
+
+Also check that you can find all emails in the inbox in *mailtrap.io*:
+- login to [mailtrap.io](https://mailtrap.io/signin) using your personal credentials
+- select the first inbox (unless you use another one), from [inboxes](https://mailtrap.io/inboxes)
+- check the content of new messages
 
 ## Credits
 

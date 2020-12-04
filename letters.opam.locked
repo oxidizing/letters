@@ -10,7 +10,7 @@ doc: "https://oxidizing.github.io/letters/"
 bug-reports: "https://github.com/oxidizing/letters/issues"
 depends: [
   "angstrom" {= "0.15.0"}
-  "asn1-combinators" {= "0.2.3"}
+  "asn1-combinators" {= "0.2.4"}
   "astring" {= "0.8.5"}
   "base" {= "v0.14.0"}
   "base-bytes" {= "base"}
@@ -19,10 +19,10 @@ depends: [
   "base64" {= "3.4.0"}
   "bigarray-compat" {= "1.0.0"}
   "bigarray-overlap" {= "0.2.0"}
-  "bigstringaf" {= "0.6.1"}
+  "bigstringaf" {= "0.7.0"}
   "cmdliner" {= "1.0.4"}
   "coin" {= "0.1.3"}
-  "colombe" {= "0.3.0"}
+  "colombe" {= "0.4.0"}
   "conf-gmp" {= "2"}
   "conf-gmp-powm-sec" {= "2"}
   "conf-m4" {= "1"}
@@ -36,13 +36,13 @@ depends: [
   "dune" {= "2.7.1"}
   "dune-configurator" {= "2.7.1"}
   "duration" {= "0.1.3"}
-  "emile" {= "1.0"}
+  "emile" {= "1.1"}
   "eqaf" {= "0.7"}
-  "fiat-p256" {= "0.2.1"}
+  "fiat-p256" {= "0.2.3"}
   "fmt" {= "0.8.9"}
   "fpath" {= "0.7.3"}
   "gmap" {= "0.3.0"}
-  "hacl_x25519" {= "0.2.0"}
+  "hacl_x25519" {= "0.2.2"}
   "hex" {= "1.4.0"}
   "hkdf" {= "1.0.4"}
   "ipaddr" {= "5.0.1"}
@@ -50,44 +50,43 @@ depends: [
   "logs" {= "0.7.0"}
   "lwt" {= "5.3.0"}
   "macaddr" {= "5.0.1"}
-  "menhir" {= "20200624"}
-  "menhirLib" {= "20200624"}
-  "menhirSdk" {= "20200624"}
-  "mirage-crypto" {= "0.8.5"}
-  "mirage-crypto-pk" {= "0.8.5"}
-  "mirage-crypto-rng" {= "0.8.5"}
+  "menhir" {= "20201201"}
+  "menhirLib" {= "20201201"}
+  "menhirSdk" {= "20201201"}
+  "mirage-crypto" {= "0.8.7"}
+  "mirage-crypto-pk" {= "0.8.7"}
+  "mirage-crypto-rng" {= "0.8.7"}
   "mirage-no-solo5" {= "1"}
   "mirage-no-xen" {= "1"}
   "mmap" {= "1.1.0"}
-  "mrmime" {= "0.3.1"}
+  "mrmime" {= "0.3.2"}
   "mtime" {= "1.2.0"}
-  "num" {= "1.3"}
+  "num" {= "1.4"}
   "ocaml" {= "4.08.1"}
   "ocaml-compiler-libs" {= "v0.12.3"}
   "ocaml-config" {= "1"}
-  "ocaml-migrate-parsetree" {= "2.0.0"}
+  "ocaml-migrate-parsetree" {= "2.1.0"}
   "ocaml-syntax-shims" {= "1.0.0"}
   "ocamlbuild" {= "0.14.0"}
   "ocamlfind" {= "1.8.1"}
   "ocplib-endian" {= "1.1"}
   "parsexp" {= "v0.14.0"}
-  "pecu" {= "0.4"}
+  "pecu" {= "0.5"}
   "ppx_cstruct" {= "6.0.0"}
   "ppx_derivers" {= "1.2.1"}
-  "ppx_sexp_conv" {= "v0.14.1"}
-  "ppxlib" {= "0.17.0"}
+  "ppx_sexp_conv" {= "v0.14.2"}
+  "ppxlib" {= "0.20.0"}
   "ptime" {= "0.8.5"}
   "re" {= "1.9.0"}
   "result" {= "1.5"}
   "rosetta" {= "0.3.0"}
   "rresult" {= "0.6.0"}
-  "sendmail" {= "0.3.0"}
-  "sendmail-lwt" {= "0.3.0"}
+  "sendmail" {= "0.4.0"}
   "seq" {= "base"}
   "sexplib" {= "v0.14.0"}
   "sexplib0" {= "v0.14.0"}
   "stdlib-shims" {= "0.1.0"}
-  "tls" {= "0.12.5"}
+  "tls" {= "0.12.6"}
   "topkg" {= "1.0.3"}
   "uchar" {= "0.0.2"}
   "unstrctrd" {= "0.2"}
@@ -95,7 +94,7 @@ depends: [
   "uuuu" {= "0.2.0"}
   "x509" {= "0.11.2"}
   "yuscii" {= "0.3.0"}
-  "zarith" {= "1.10"}
+  "zarith" {= "1.11"}
 ]
 build: [
   ["dune" "subst"] {pinned}

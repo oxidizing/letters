@@ -192,7 +192,7 @@ let send ~config:c ~sender ~recipients ~message =
   let from_mailbox =
     match Emile.of_string sender with
     | Ok v -> v
-    | Error (`Invalid (_,_)) -> failwith "Invalid sender address"
+    | Error (`Invalid (_, _)) -> failwith "Invalid sender address"
   in
   let from_addr =
     match Colombe_emile.to_reverse_path from_mailbox with
@@ -248,7 +248,8 @@ let send ~config:c ~sender ~recipients ~message =
     match res with
     | Ok () -> Lwt.return ()
     | Error err ->
-      Lwt.fail_with (Fmt.str "Sending email failed, %a" Sendmail_with_tls.pp_error err)
+      Lwt.fail_with
+        (Fmt.str "Sending email failed, %a" Sendmail_with_starttls.pp_error err)
   else
     let* res =
       Sendmail_handler.run
