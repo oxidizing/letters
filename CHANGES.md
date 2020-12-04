@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.1] - 2020-12-07
+### Fixed
+- Upgrade to `colombe` version `0.4.0`, this fixes vanishing full stop issue,
+  when encoded mail body contains line that stars with full stop. See
+  [SMTP Transparency](https://tools.ietf.org/html/rfc821#section-4.5.2) for more
+  information.
+### Changed
+- Improve service tests
+- Improve documentation for running service tests
+### Added
+- Use also *mailtrap.io* in service tests
+
 ## [0.2.0] - 2020-08-25
 ### Added
 - Support for multipart/alternative emails supporting HTML and plain text bodies
