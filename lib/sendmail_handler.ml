@@ -20,7 +20,11 @@ type flow =
 let rdwr =
   { Colombe.Sigs.rd =
       (fun { ic; _ } bytes off len ->
-        let res = Lwt_io.read_into ic bytes off len in
+        let open Lwt.Infix in
+        let res = Lwt_io.read_into ic bytes off len >>= function
+           | 0 -> Lwt.return `End
+           | len -> Lwt.return (`Len len)
+        in
         Lwt_scheduler.inj res)
   ; wr =
       (fun { oc; _ } bytes off len ->
