@@ -187,7 +187,7 @@ let () =
        Config.set_ca_path "/etc/ssl/certs/" ethereal_conf_with_ca_detect
      in
      Alcotest_lwt.run
-       "STMP client"
+       "SMTP client"
        [ ( "use ethereal.email, auto-detect CA certs"
          , [ Alcotest_lwt.test_case
                "Send plain text email, auto-detect CA certs"
