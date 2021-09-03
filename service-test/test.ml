@@ -180,15 +180,14 @@ let () =
          ethereal_conf_with_ca_detect
      in
      let ethereal_conf_with_single_ca_cert =
-       (* ethereal.mail's certificate is signed with Let's Encrypt Authority X3
-        *  that signed by DST Root CA X3 *)
-       Config.set_ca_cert "/etc/ssl/certs/DST_Root_CA_X3.pem" ethereal_conf_with_ca_detect
+       (* Use PEM file containing correct chain *)
+       Config.set_ca_cert "../../../ethereal-email-chain.pem" ethereal_conf_with_ca_detect
      in
      let ethereal_conf_with_ca_path =
        Config.set_ca_path "/etc/ssl/certs/" ethereal_conf_with_ca_detect
      in
      Alcotest_lwt.run
-       "STMP client"
+       "SMTP client"
        [ ( "use ethereal.email, auto-detect CA certs"
          , [ Alcotest_lwt.test_case
                "Send plain text email, auto-detect CA certs"
