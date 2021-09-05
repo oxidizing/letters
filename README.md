@@ -48,7 +48,7 @@ let conf = Config.make ~username:"myuser" ~password:"mypasswd" ~hostname:"smtp.e
 |> Config.set_port (Some 2525)
 ```
 
-If the CA certificate auto-detection does not work for you (it's very na&iuml;ve implementation), you can define path to a certificate bundle or to a single PEM encoded certificate, or you can define path to a folder containing multiple PEM encoded certificate files.
+CA certificate auto-detection is done once initially when you call `Letters.send`. If the CA certificate auto-detection does not work for you (whether you plan on moving the CA certificate after calling `Letters.send` initially or whether the detection simply fails on your system), you can define path to a certificate bundle or to a single PEM encoded certificate, or you can define path to a folder containing multiple PEM encoded certificate files.
 
 To use a CA certificate bundle (each included certificate needs to be PEM encoded):
 

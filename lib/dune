@@ -13,5 +13,6 @@
    mrmime
    sendmail
    sendmail.starttls
+   ca-certs
  )
 )

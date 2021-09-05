@@ -176,6 +176,10 @@ let ca_path_peer_verifier path =
   Lwt.return (X509.Authenticator.chain_of_trust ~time:now certs)
 ;;
 
+(* Store the detected CA cert path so it doesn't have to be detected every time a mail is
+   sent *)
+let detected_cert = ref None
+
 let send ~config:c ~sender ~recipients ~message =
   let open Config in
   let ( let* ) = Lwt.bind in
@@ -227,10 +231,19 @@ let send ~config:c ~sender ~recipients ~message =
     | Ca_path path -> ca_path_peer_verifier path
     | Ca_cert path -> ca_cert_peer_verifier path
     | Detect ->
-      let* cert = Ca_certs.detect () in
+      let cert =
+        match !detected_cert with
+        | None ->
+          let cert = Ca_certs.trust_anchors () in
+          detected_cert := Some cert;
+          cert
+        | Some cert -> cert
+      in
       (match cert with
-      | Some (`Ca_file path) -> ca_cert_peer_verifier path
-      | None -> failwith "Could not find CA certificate bundle")
+      | Ok path -> ca_cert_peer_verifier path
+      | Error (`Msg msg) ->
+        Logs.err (fun m -> m "%s" msg);
+        failwith "Could not find CA certificate bundle")
   in
   if c.with_starttls
   then
