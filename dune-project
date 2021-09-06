@@ -18,7 +18,7 @@
  (description "Simple to use SMTP client implementation for OCaml")
  (depends
   (ocaml (>= 4.08.1))
-  (dune (>= 2.3))
+  (dune (>= 2.7))
   (mrmime (>= 0.3.1))
   (colombe (>= 0.5.0))
   (sendmail (>= 0.4.0))
