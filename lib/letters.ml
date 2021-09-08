@@ -176,107 +176,107 @@ let ca_path_peer_verifier path =
   Lwt.return (X509.Authenticator.chain_of_trust ~time:now certs)
 ;;
 
-(* Store the detected CA cert path so it doesn't have to be detected every time a mail is
-   sent *)
-let detected_cert = ref None
-
-let send ~config:c ~sender ~recipients ~message =
-  let open Config in
-  let ( let* ) = Lwt.bind in
-  let authentication : Sendmail.authentication =
-    { username = c.username; password = c.password; mechanism = Sendmail.PLAIN }
-  in
-  let port =
-    match c.port, c.with_starttls with
-    | None, true -> 587
-    | None, false -> 465
-    | Some v, _ -> v
-  in
-  let mail = Mrmime.Mt.to_stream message in
-  let from_mailbox =
-    match Emile.of_string sender with
-    | Ok v -> v
-    | Error (`Invalid (_, _)) -> failwith "Invalid sender address"
-  in
-  let from_addr =
-    match Colombe_emile.to_reverse_path from_mailbox with
-    | Ok v -> v
-    | Error (`Msg msg) -> failwith msg
-  in
-  let recipients =
-    List.map
-      (fun recipient ->
-        (match recipient with
-        | To a -> a
-        | Cc a -> a
-        | Bcc a -> a)
-        |> str_to_colombe_address)
-      recipients
-  in
-  let domain =
-    match domain_of_reverse_path from_addr with
-    | Ok v -> v
-    | Error _ -> failwith "Failed to extract domain of sender address"
-  in
-  let hostname =
-    match Domain_name.of_string c.hostname with
-    | Error _ -> failwith "Config hostname is not valid hostname"
-    | Ok hostname ->
-      (match Domain_name.host hostname with
+let send =
+  (* Store the auto-detected CA cert authenticator so it doesn't have to be detected every
+     time a mail is sent *)
+  let detected_auth = ref None in
+  fun ~config:c ~sender ~recipients ~message ->
+    let open Config in
+    let ( let* ) = Lwt.bind in
+    let authentication : Sendmail.authentication =
+      { username = c.username; password = c.password; mechanism = Sendmail.PLAIN }
+    in
+    let port =
+      match c.port, c.with_starttls with
+      | None, true -> 587
+      | None, false -> 465
+      | Some v, _ -> v
+    in
+    let mail = Mrmime.Mt.to_stream message in
+    let from_mailbox =
+      match Emile.of_string sender with
+      | Ok v -> v
+      | Error (`Invalid (_, _)) -> failwith "Invalid sender address"
+    in
+    let from_addr =
+      match Colombe_emile.to_reverse_path from_mailbox with
+      | Ok v -> v
+      | Error (`Msg msg) -> failwith msg
+    in
+    let recipients =
+      List.map
+        (fun recipient ->
+          (match recipient with
+          | To a -> a
+          | Cc a -> a
+          | Bcc a -> a)
+          |> str_to_colombe_address)
+        recipients
+    in
+    let domain =
+      match domain_of_reverse_path from_addr with
+      | Ok v -> v
+      | Error _ -> failwith "Failed to extract domain of sender address"
+    in
+    let hostname =
+      match Domain_name.of_string c.hostname with
       | Error _ -> failwith "Config hostname is not valid hostname"
-      | Ok hostname -> hostname)
-  in
-  let* tls_peer_verifier =
-    match c.ca_certs with
-    | Ca_path path -> ca_path_peer_verifier path
-    | Ca_cert path -> ca_cert_peer_verifier path
-    | Detect ->
-      let cert =
-        match !detected_cert with
-        | None ->
-          let cert = Ca_certs.trust_anchors () in
-          detected_cert := Some cert;
-          cert
-        | Some cert -> cert
+      | Ok hostname ->
+        (match Domain_name.host hostname with
+        | Error _ -> failwith "Config hostname is not valid hostname"
+        | Ok hostname -> hostname)
+    in
+    let* tls_peer_verifier =
+      match c.ca_certs with
+      | Ca_path path -> ca_path_peer_verifier path
+      | Ca_cert path -> ca_cert_peer_verifier path
+      | Detect ->
+        let auth =
+          match !detected_auth with
+          | None ->
+            let auth = Ca_certs.authenticator () in
+            detected_auth := Some auth;
+            auth
+          | Some auth -> auth
+        in
+        (match auth with
+        | Ok auth -> Lwt.return auth
+        | Error (`Msg msg) ->
+          Logs.err (fun m -> m "%s" msg);
+          failwith "Could not create authenticator")
+    in
+    if c.with_starttls
+    then
+      let* res =
+        Sendmail_handler.run_with_starttls
+          ~hostname
+          ~port
+          ~domain
+          ~authentication
+          ~tls_authenticator:tls_peer_verifier
+          ~from:from_addr
+          ~recipients
+          ~mail
       in
-      (match cert with
-      | Ok path -> ca_cert_peer_verifier path
-      | Error (`Msg msg) ->
-        Logs.err (fun m -> m "%s" msg);
-        failwith "Could not find CA certificate bundle")
-  in
-  if c.with_starttls
-  then
-    let* res =
-      Sendmail_handler.run_with_starttls
-        ~hostname
-        ~port
-        ~domain
-        ~authentication
-        ~tls_authenticator:tls_peer_verifier
-        ~from:from_addr
-        ~recipients
-        ~mail
-    in
-    match res with
-    | Ok () -> Lwt.return ()
-    | Error err ->
-      Lwt.fail_with
-        (Fmt.str "Sending email failed, %a" Sendmail_with_starttls.pp_error err)
-  else
-    let* res =
-      Sendmail_handler.run
-        ~hostname
-        ~port
-        ~domain
-        ~authentication
-        ~tls_authenticator:tls_peer_verifier
-        ~from:from_addr
-        ~recipients
-        ~mail
-    in
-    match res with
-    | Ok () -> Lwt.return ()
-    | Error err ->
-      Lwt.fail_with (Fmt.str "Sending email failed, %a" Sendmail.pp_error err)
+      match res with
+      | Ok () -> Lwt.return ()
+      | Error err ->
+        Lwt.fail_with
+          (Fmt.str "Sending email failed, %a" Sendmail_with_starttls.pp_error err)
+    else
+      let* res =
+        Sendmail_handler.run
+          ~hostname
+          ~port
+          ~domain
+          ~authentication
+          ~tls_authenticator:tls_peer_verifier
+          ~from:from_addr
+          ~recipients
+          ~mail
+      in
+      match res with
+      | Ok () -> Lwt.return ()
+      | Error err ->
+        Lwt.fail_with (Fmt.str "Sending email failed, %a" Sendmail.pp_error err)
 ;;
