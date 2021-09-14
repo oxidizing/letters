@@ -1,4 +1,7 @@
 # Changelog
+## [0.3.0] - 2021-09-14
+### Fixed
+- Upgrade to `colombe` version `0.5.0`
 
 ## [0.2.1] - 2020-12-07
 ### Fixed

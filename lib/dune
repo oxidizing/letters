@@ -16,3 +16,7 @@
    ca-certs
  )
 )
+
+(env
+  (dev
+    (flags (:standard -w -16))))
