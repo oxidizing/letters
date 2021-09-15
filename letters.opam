@@ -10,8 +10,8 @@ homepage: "https://github.com/oxidizing/letters/"
 doc: "https://oxidizing.github.io/letters/"
 bug-reports: "https://github.com/oxidizing/letters/issues"
 depends: [
-  "ocaml" {>= "4.08.1"}
   "dune" {>= "2.7"}
+  "ocaml" {>= "4.08.1"}
   "mrmime" {>= "0.3.1"}
   "colombe" {>= "0.5.0"}
   "sendmail" {>= "0.5.0"}
@@ -28,7 +28,7 @@ depends: [
   "ocamlformat" {dev}
 ]
 build: [
-  ["dune" "subst"] {pinned}
+  ["dune" "subst"] {dev}
   [
     "dune"
     "build"
