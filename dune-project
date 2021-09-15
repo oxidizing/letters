@@ -1,4 +1,4 @@
-(lang dune 2.3)
+(lang dune 2.7)
 (name letters)
 (version 0.3.0)
 
@@ -18,7 +18,6 @@
  (description "Simple to use SMTP client implementation for OCaml")
  (depends
   (ocaml (>= 4.08.1))
-  (dune (>= 2.7))
   (mrmime (>= 0.3.1))
   (colombe (>= 0.5.0))
   (sendmail (>= 0.5.0))
