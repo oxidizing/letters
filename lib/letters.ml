@@ -5,8 +5,8 @@ module Config = struct
     | Detect
 
   type t =
-    { username : string
-    ; password : string
+    { username : string option
+    ; password : string option
     ; hostname : string
     ; port : int option
     ; with_starttls : bool
@@ -183,8 +183,11 @@ let send =
   fun ~config:c ~sender ~recipients ~message ->
     let open Config in
     let ( let* ) = Lwt.bind in
-    let authentication : Sendmail.authentication =
-      { username = c.username; password = c.password; mechanism = Sendmail.PLAIN }
+    let authentication : Sendmail.authentication option =
+      match c.username, c.password with
+      | Some username, Some password ->
+        Some { username; password; mechanism = Sendmail.PLAIN }
+      | _ -> None
     in
     let port =
       match c.port, c.with_starttls with
@@ -252,7 +255,7 @@ let send =
           ~hostname
           ~port
           ~domain
-          ~authentication
+          ?authentication
           ~tls_authenticator:tls_peer_verifier
           ~from:from_addr
           ~recipients
@@ -269,7 +272,7 @@ let send =
           ~hostname
           ~port
           ~domain
-          ~authentication
+          ?authentication
           ~tls_authenticator:tls_peer_verifier
           ~from:from_addr
           ~recipients
