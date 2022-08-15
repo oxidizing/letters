@@ -16,7 +16,6 @@ build:
 clean:
 	opam exec -- dune clean
 
-.PHONY: test-all
-test-all:
-	curl -s -d '{ "requestor": "letters", "version": "0.1.0" }' "https://api.nodemailer.com/user" -X POST -H "Content-Type: application/json" > ethereal_account.json
+.PHONY: test
+test:
 	opam exec -- dune runtest --force --no-buffer test
