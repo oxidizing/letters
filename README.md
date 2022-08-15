@@ -39,7 +39,7 @@ This will use port `587`, uses STARTTLS for encryption and tries automatically f
 
 Port `587` is default when using STARTTLS. If you set `~with_starttls:false`, then the default port will be `465`.
 
-This library does **not** support SMTP connections without TLS encryption or authentication. For TLS encryption, this library uses [ocaml-tls](https://opam.ocaml.org/packages/tls/).
+This library does **not** support SMTP connections without TLS encryption. For TLS encryption, this library uses [ocaml-tls](https://opam.ocaml.org/packages/tls/).
 
 If you want to change the server port you can do it with `Config.set_port` (passing `None` causes default port to be used):
 
@@ -243,16 +243,16 @@ To create temporary *ethereal.email* account and store the account details, you 
 curl -s -d '{ "requestor": "letters", "version": "dev" }' "https://api.nodemailer.com/user" -X POST -H "Content-Type: application/json" | jq '{ hostname: .smtp.host, port: .smtp.port, secure: false, username: .user, password: .pass, }'> ethereal_account.json
 ```
 
-For *mailtrap.io*, you need to create a personal account first and get the API key:
+For *mailtrap.io*, you need to create a personal account first and get the API key (for v1 API):
 - [signup](https://mailtrap.io/register/signup?ref=header)
-- [copy API token from Settings](https://mailtrap.io/settings)
+- click on your name top right and select "My Profile", copy the "Api Token"
 
 The configuration file you can create with following steps:
 - create environment variable containing your API token: `export MAILTRAP_API_TOKEN=<API token>`
 - run the following one-liner in terminal to create the configuration file:
 
 ``` shell
-curl -s -H "Authorization: Bearer ${MAILTRAP_API_TOKEN}" "https://mailtrap.io/api/v1/inboxes" | jq '.[0] | { hostname: .domain, port: .smtp_ports[2], secure: false, username: .username, password: .password }' > mailtrap_account.json
+curl -s -H "Api-Token: ${MAILTRAP_API_TOKEN}" "https://mailtrap.io/api/v1/inboxes" | jq '.[0] | { hostname: .domain, port: .smtp_ports[2], secure: false, username: .username, password: .password }' > mailtrap_account.json
 ```
 
 Now you are ready to execute these tests. You can run them with the following command:

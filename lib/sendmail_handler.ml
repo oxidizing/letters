@@ -37,7 +37,7 @@ let run_with_starttls
     ~hostname
     ?port
     ~domain
-    ~authentication
+    ?authentication
     ~tls_authenticator
     ~from
     ~recipients
@@ -81,7 +81,7 @@ let run_with_starttls
         { ic; oc }
         ctx
         tls
-        ~authentication
+        ?authentication
         ~domain
         from
         recipients
@@ -90,7 +90,7 @@ let run_with_starttls
     Lwt_scheduler.prj fiber)
 ;;
 
-let run ~hostname ?port ~domain ~authentication ~tls_authenticator ~from ~recipients ~mail
+let run ~hostname ?port ~domain ?authentication ~tls_authenticator ~from ~recipients ~mail
   =
   let ( let* ) = Lwt.bind in
   let port =
@@ -113,7 +113,7 @@ let run ~hostname ?port ~domain ~authentication ~tls_authenticator ~from ~recipi
       rdwr
       { ic; oc }
       ctx
-      ~authentication
+      ?authentication
       ~domain
       from
       recipients
