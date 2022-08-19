@@ -1,4 +1,8 @@
 # Changelog
+## [0.3.1] - 2022-08-19
+### Changed
+- Make SMTP credentials optional
+
 ## [0.3.0] - 2021-09-14
 ### Fixed
 - Upgrade to `colombe` version `0.5.0`
