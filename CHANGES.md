@@ -1,7 +1,7 @@
 # Changelog
-## [0.3.1] - 2022-08-19
+## [0.3.1] - 2022-08-22
 ### Changed
-- Make SMTP credentials optional
+- Make SMTP credentials optional by allowing empty strings
 
 ## [0.3.0] - 2021-09-14
 ### Fixed

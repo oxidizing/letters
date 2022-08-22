@@ -6,18 +6,18 @@ module Config : sig
 
       This is a helper to build a configuration.
 
-      [username] username needed for the login, if not provided, SMTP will be used
+      [username] username needed for the login, if empty string provided, SMTP will be used
       unauthenticated
 
-      [password] user's password for the login, if not provided, SMTP will be used
+      [password] user's password for the login, if empty string provided, SMTP will be used
       unauthenticated
 
       [hostname] hostname of the SMTP server
 
       [with_starttls] True if start unencrypted connection and then "promote" *)
   val make
-    :  username:string option
-    -> password:string option
+    :  username:string
+    -> password:string
     -> hostname:string
     -> with_starttls:bool
     -> t
