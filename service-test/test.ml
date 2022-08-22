@@ -8,8 +8,8 @@ let get_ethereal_account_details () =
    * below is relative to the location of the executable under _build
    *)
   let json = Yojson.Basic.from_file "../../../ethereal_account.json" in
-  let username = json |> member "username" |> to_string |> Option.some in
-  let password = json |> member "password" |> to_string |> Option.some in
+  let username = json |> member "username" |> to_string in
+  let password = json |> member "password" |> to_string in
   let hostname = json |> member "hostname" |> to_string in
   let port = json |> member "port" |> to_int in
   let with_starttls = json |> member "secure" |> to_bool |> not in
@@ -24,8 +24,8 @@ let get_mailtrap_account_details () =
    * below is relative to the location of the executable under _build
    *)
   let json = Yojson.Basic.from_file "../../../mailtrap_account.json" in
-  let username = json |> member "username" |> to_string |> Option.some in
-  let password = json |> member "password" |> to_string |> Option.some in
+  let username = json |> member "username" |> to_string in
+  let password = json |> member "password" |> to_string in
   let hostname = json |> member "hostname" |> to_string in
   let port = json |> member "port" |> to_int in
   let with_starttls = json |> member "secure" |> to_bool |> not in

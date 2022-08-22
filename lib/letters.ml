@@ -14,6 +14,12 @@ module Config = struct
     }
 
   let make ~username ~password ~hostname ~with_starttls =
+    let username =
+      if String.equal username "" then Option.none else Option.some username
+    in
+    let password =
+      if String.equal password "" then Option.none else Option.some password
+    in
     { username; password; hostname; with_starttls; port = None; ca_certs = Detect }
   ;;
 
@@ -52,8 +58,8 @@ let str_to_colombe_address str_address =
   match Emile.of_string str_address with
   | Ok mailbox ->
     (match Colombe_emile.to_forward_path mailbox with
-    | Ok address -> address
-    | Error _ -> raise (Invalid_email_address str_address))
+     | Ok address -> address
+     | Error _ -> raise (Invalid_email_address str_address))
   | Error _ -> raise (Invalid_email_address str_address)
 ;;
 
@@ -67,8 +73,8 @@ let to_recipient_to_address : recipient -> Mrmime.Address.t option =
   match recipient with
   | To address ->
     (match Mrmime.Mailbox.of_string address with
-    | Ok mailbox -> Some (Mrmime.Address.mailbox mailbox)
-    | Error _ -> raise (Invalid_email_address address))
+     | Ok mailbox -> Some (Mrmime.Address.mailbox mailbox)
+     | Error _ -> raise (Invalid_email_address address))
   | Cc _ -> None
   | Bcc _ -> None
 ;;
@@ -79,8 +85,8 @@ let cc_recipient_to_address : recipient -> Mrmime.Address.t option =
   | To _ -> None
   | Cc address ->
     (match Mrmime.Mailbox.of_string address with
-    | Ok mailbox -> Some (Mrmime.Address.mailbox mailbox)
-    | Error _ -> raise (Invalid_email_address address))
+     | Ok mailbox -> Some (Mrmime.Address.mailbox mailbox)
+     | Error _ -> raise (Invalid_email_address address))
   | Bcc _ -> None
 ;;
 
@@ -151,9 +157,9 @@ let build_email ~from ~recipients ~subject ~body =
             [ Field (Field_name.content_type, Content, multipart_content_alternative) ]
         in
         (match boundary with
-        | None -> MtMultipart (Mt.multipart ~rng:Mt.rng ~header [ plain; html ])
-        | Some boundary ->
-          MtMultipart (Mt.multipart ~rng:Mt.rng ~header ~boundary [ plain; html ]))
+         | None -> MtMultipart (Mt.multipart ~rng:Mt.rng ~header [ plain; html ])
+         | Some boundary ->
+           MtMultipart (Mt.multipart ~rng:Mt.rng ~header ~boundary [ plain; html ]))
     in
     match body with
     | MtSimple part -> Ok (Mt.make (Mrmime.Header.of_list headers) Mt.simple part)
@@ -210,9 +216,9 @@ let send =
       List.map
         (fun recipient ->
           (match recipient with
-          | To a -> a
-          | Cc a -> a
-          | Bcc a -> a)
+           | To a -> a
+           | Cc a -> a
+           | Bcc a -> a)
           |> str_to_colombe_address)
         recipients
     in
@@ -226,8 +232,8 @@ let send =
       | Error _ -> failwith "Config hostname is not valid hostname"
       | Ok hostname ->
         (match Domain_name.host hostname with
-        | Error _ -> failwith "Config hostname is not valid hostname"
-        | Ok hostname -> hostname)
+         | Error _ -> failwith "Config hostname is not valid hostname"
+         | Ok hostname -> hostname)
     in
     let* tls_peer_verifier =
       match c.ca_certs with
@@ -243,10 +249,10 @@ let send =
           | Some auth -> auth
         in
         (match auth with
-        | Ok auth -> Lwt.return auth
-        | Error (`Msg msg) ->
-          Logs.err (fun m -> m "%s" msg);
-          failwith "Could not create authenticator")
+         | Ok auth -> Lwt.return auth
+         | Error (`Msg msg) ->
+           Logs.err (fun m -> m "%s" msg);
+           failwith "Could not create authenticator")
     in
     if c.with_starttls
     then
