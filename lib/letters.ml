@@ -11,16 +11,24 @@ module Config = struct
     ; port : int option
     ; with_starttls : bool
     ; ca_certs : ca_certs
+    ; mechanism : Sendmail.mechanism
     }
 
-  let make ~username ~password ~hostname ~with_starttls =
+  let make ?(mechanism = Sendmail.PLAIN) ~username ~password ~hostname ~with_starttls =
     let username =
       if String.equal username "" then Option.none else Option.some username
     in
     let password =
       if String.equal password "" then Option.none else Option.some password
     in
-    { username; password; hostname; with_starttls; port = None; ca_certs = Detect }
+    { username
+    ; password
+    ; hostname
+    ; with_starttls
+    ; port = None
+    ; ca_certs = Detect
+    ; mechanism
+    }
   ;;
 
   let set_port port config = { config with port }
@@ -192,7 +200,7 @@ let send =
     let authentication : Sendmail.authentication option =
       match c.username, c.password with
       | Some username, Some password ->
-        Some { username; password; mechanism = Sendmail.PLAIN }
+        Some { username; password; mechanism = c.mechanism }
       | _ -> None
     in
     let port =
