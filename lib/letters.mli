@@ -6,17 +6,20 @@ module Config : sig
 
       This is a helper to build a configuration.
 
-      [username] username needed for the login, if empty string provided, SMTP will be used
-      unauthenticated
+      [username] username needed for the login, if empty string provided, SMTP will be
+      used unauthenticated
 
-      [password] user's password for the login, if empty string provided, SMTP will be used
-      unauthenticated
+      [password] user's password for the login, if empty string provided, SMTP will be
+      used unauthenticated
 
       [hostname] hostname of the SMTP server
 
-      [with_starttls] True if start unencrypted connection and then "promote" *)
+      [with_starttls] True if start unencrypted connection and then "promote"
+
+      [?mechanism] login mechanism used by sendmail (default: PLAIN) *)
   val make
-    :  username:string
+    :  ?mechanism:Sendmail.mechanism
+    -> username:string
     -> password:string
     -> hostname:string
     -> with_starttls:bool

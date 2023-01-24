@@ -21,9 +21,11 @@ let rdwr =
   { Colombe.Sigs.rd =
       (fun { ic; _ } bytes off len ->
         let open Lwt.Infix in
-        let res = Lwt_io.read_into ic bytes off len >>= function
-           | 0 -> Lwt.return `End
-           | len -> Lwt.return (`Len len)
+        let res =
+          Lwt_io.read_into ic bytes off len
+          >>= function
+          | 0 -> Lwt.return `End
+          | len -> Lwt.return (`Len len)
         in
         Lwt_scheduler.inj res)
   ; wr =
@@ -34,14 +36,14 @@ let rdwr =
 ;;
 
 let run_with_starttls
-    ~hostname
-    ?port
-    ~domain
-    ?authentication
-    ~tls_authenticator
-    ~from
-    ~recipients
-    ~mail
+  ~hostname
+  ?port
+  ~domain
+  ?authentication
+  ~tls_authenticator
+  ~from
+  ~recipients
+  ~mail
   =
   let port =
     match port with
@@ -54,7 +56,7 @@ let run_with_starttls
   Lwt_unix.gethostbyname (Domain_name.to_string hostname)
   >>= fun res ->
   if Array.length res.Lwt_unix.h_addr_list = 0
-  then Lwt.fail_with (Fmt.strf "%a can not be resolved" Domain_name.pp hostname)
+  then Lwt.fail_with (Fmt.str "%a can not be resolved" Domain_name.pp hostname)
   else (
     let socket = Lwt_unix.socket Lwt_unix.PF_INET Unix.SOCK_STREAM 0 in
     Lwt_unix.connect socket (Lwt_unix.ADDR_INET (res.Lwt_unix.h_addr_list.(0), port))
