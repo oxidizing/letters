@@ -1,4 +1,7 @@
 # Changelog
+## [0.3.2] - 2023-01-24
+- Allow configuration of optional sendmail mechanism
+
 ## [0.3.1] - 2022-08-22
 ### Changed
 - Make SMTP credentials optional by allowing empty strings
