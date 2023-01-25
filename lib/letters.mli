@@ -17,9 +17,18 @@ module Config : sig
       [with_starttls] True if start unencrypted connection and then "promote"
 
       [?mechanism] login mechanism used by sendmail (default: PLAIN) *)
-  val make
+  val create
     :  ?mechanism:Sendmail.mechanism
     -> username:string
+    -> password:string
+    -> hostname:string
+    -> with_starttls:bool
+    -> unit
+    -> t
+
+  (** Same as [create] with default mechanism - backwards compatibility *)
+  val make
+    :  username:string
     -> password:string
     -> hostname:string
     -> with_starttls:bool

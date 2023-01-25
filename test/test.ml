@@ -54,7 +54,30 @@ let test_create_mixed_body_email _ () =
   Lwt.return (print_string message)
 ;;
 
+let test_create_config () =
+  (* check for config compatibility *)
+  let username, password, hostname, with_starttls =
+    "SomeUser", "password", "localhost", true
+  in
+  let (_ : Config.t) = Config.make ~username ~password ~hostname ~with_starttls in
+  let (_ : Config.t) = Config.create ~username ~password ~hostname ~with_starttls () in
+  let (_ : Config.t) =
+    Config.create
+      ~mechanism:Sendmail.LOGIN
+      ~username
+      ~password
+      ~hostname
+      ~with_starttls
+      ()
+  in
+  ()
+;;
+
 let () =
+  let () =
+    Alcotest.(
+      run "model" [ "config", [ test_case "create config" `Quick test_create_config ] ])
+  in
   Lwt_main.run
     (Alcotest_lwt.run
        "Email creation"
