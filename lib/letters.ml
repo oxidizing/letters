@@ -14,7 +14,8 @@ module Config = struct
     ; mechanism : Sendmail.mechanism
     }
 
-  let make ?(mechanism = Sendmail.PLAIN) ~username ~password ~hostname ~with_starttls =
+  let create ?(mechanism = Sendmail.PLAIN) ~username ~password ~hostname ~with_starttls ()
+    =
     let username =
       if String.equal username "" then Option.none else Option.some username
     in
@@ -29,6 +30,10 @@ module Config = struct
     ; ca_certs = Detect
     ; mechanism
     }
+  ;;
+
+  let make ~username ~password ~hostname ~with_starttls =
+    create ~username ~password ~hostname ~with_starttls ()
   ;;
 
   let set_port port config = { config with port }
@@ -162,7 +167,8 @@ let build_email ~from ~recipients ~subject ~body =
         let html = Mt.part ~header:html_headers (stream_of_string html) in
         let header =
           Header.of_list
-            [ Field (Field_name.content_type, Content, multipart_content_alternative) ]
+            Field.
+              [ Field (Field_name.content_type, Content, multipart_content_alternative) ]
         in
         (match boundary with
          | None -> MtMultipart (Mt.multipart ~rng:Mt.rng ~header [ plain; html ])
@@ -200,7 +206,7 @@ let send =
     let authentication : Sendmail.authentication option =
       match c.username, c.password with
       | Some username, Some password ->
-        Some { username; password; mechanism = c.mechanism }
+        Some { Sendmail.username; password; mechanism = c.mechanism }
       | _ -> None
     in
     let port =
