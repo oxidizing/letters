@@ -16,7 +16,7 @@ let test_create_plain_text_email _ () =
   let recipients = [ To "dave@example.com" ] in
   let subject = "Hello" in
   let body = Plain "Hello Dave" in
-  let mail = build_email ~from:"harry@example.com" ~recipients ~subject ~body in
+  let mail = create_email ~from:"harry@example.com" ~recipients ~subject ~body () in
   let stream =
     match mail with
     | Ok mail -> Mrmime.Mt.to_stream mail
@@ -30,7 +30,7 @@ let test_create_html_email _ () =
   let recipients = [ To "dave@example.com" ] in
   let subject = "Hello" in
   let body = Html "<i>Hello Dave</i>" in
-  let mail = build_email ~from:"harry@example.com" ~recipients ~subject ~body in
+  let mail = create_email ~from:"harry@example.com" ~recipients ~subject ~body () in
   let stream =
     match mail with
     | Ok mail -> Mrmime.Mt.to_stream mail
@@ -44,7 +44,7 @@ let test_create_mixed_body_email _ () =
   let recipients = [ To "dave@example.com" ] in
   let subject = "Hello" in
   let body = Mixed ("Hello Dave", "<i>Hello Dave</i>", Some "blaablaa") in
-  let mail = build_email ~from:"harry@example.com" ~recipients ~subject ~body in
+  let mail = create_email ~from:"harry@example.com" ~recipients ~subject ~body () in
   let stream =
     match mail with
     | Ok mail -> Mrmime.Mt.to_stream mail
@@ -59,7 +59,9 @@ let test_create_config () =
   let username, password, hostname, with_starttls =
     "SomeUser", "password", "localhost", true
   in
-  let (_ : Config.t) = Config.make ~username ~password ~hostname ~with_starttls in
+  let[@warning "-3"] (_ : Config.t) =
+    Config.make ~username ~password ~hostname ~with_starttls
+  in
   let (_ : Config.t) = Config.create ~username ~password ~hostname ~with_starttls () in
   let (_ : Config.t) =
     Config.create

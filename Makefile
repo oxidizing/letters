@@ -12,6 +12,10 @@ create_switch:
 build:
 	opam exec -- dune build @install
 
+.PHONY: watch
+watch:
+	opam exec -- dune build @install --watch
+
 .PHONY: clean
 clean:
 	opam exec -- dune clean

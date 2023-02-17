@@ -33,6 +33,7 @@ module Config : sig
     -> hostname:string
     -> with_starttls:bool
     -> t
+    [@@deprecated "Replace with [create] function"]
 
   (** Add a port to configuration record
 
@@ -73,6 +74,8 @@ type recipient =
     This function is a helper function to simplify process of building an email with
     `mrmime`. It will return result type and wraps all exceptions into Error
 
+    [reply_to] specific email address to reply to
+
     [from] string representation of the email proved as a `from` field, this can be a
     different email address than the [config.sender].
 
@@ -84,14 +87,27 @@ type recipient =
     or HTML message
 
     Returns [result] indicating if built email is valid or Error if anything failed *)
+val create_email
+  :  ?reply_to:string
+  -> from:string
+  -> recipients:recipient list
+  -> subject:string
+  -> body:body
+  -> unit
+  -> (Mrmime.Mt.t, string) result
+
+(** Build an email using mrmime like [create_email]
+
+    Backwards compatible build function without reply_to *)
 val build_email
   :  from:string
   -> recipients:recipient list
   -> subject:string
   -> body:body
   -> (Mrmime.Mt.t, string) result
+  [@@deprecated "Replace with [create_email] function"]
 
-(** Send the previously generated email
+(** Send the previously created email
 
     This function expects valid configuration, list of recipients and finally a valid
     `mrmime` representation of the email message.

@@ -105,16 +105,17 @@ let cc_recipient_to_address : recipient -> Mrmime.Address.t option =
 
 let now () = Some (Ptime_clock.now ())
 
-let build_email ~from ~recipients ~subject ~body =
+let create_email ?reply_to ~from ~recipients ~subject ~body () =
   try
     let open Mrmime in
-    let subject = Unstructured.Craft.v subject in
-    let date = Date.of_ptime ~zone:Date.Zone.GMT (Ptime_clock.now ()) in
-    let from_addr =
-      match Mailbox.of_string from with
+    let to_mailbox s =
+      match Mailbox.of_string s with
       | Ok v -> v
       | Error _ -> raise (Invalid_email_address from)
     in
+    let subject = Unstructured.Craft.v subject in
+    let date = Date.of_ptime ~zone:Date.Zone.GMT (Ptime_clock.now ()) in
+    let from_addr = from |> to_mailbox in
     let to_addresses = List.filter_map to_recipient_to_address recipients in
     let cc_addresses = List.filter_map cc_recipient_to_address recipients in
     let headers =
@@ -124,6 +125,12 @@ let build_email ~from ~recipients ~subject ~body =
       ; Field.(Field (Field_name.v "To", Addresses, to_addresses))
       ; Field.(Field (Field_name.cc, Addresses, cc_addresses))
       ]
+      @ (reply_to
+        |> Option.map (fun a ->
+             Field.(
+               Field
+                 (Field_name.reply_to, Addresses, [ a |> to_mailbox |> Address.mailbox ])))
+        |> Option.to_list)
     in
     let plain_text_headers =
       let content1 =
@@ -182,6 +189,10 @@ let build_email ~from ~recipients ~subject ~body =
   | Invalid_email_address address ->
     Error (Printf.sprintf "Invalid email address: %s" address)
   | ex -> Error (Printexc.to_string ex)
+;;
+
+let build_email ~from ~recipients ~subject ~body =
+  create_email ~from ~recipients ~subject ~body ()
 ;;
 
 let ca_cert_peer_verifier path =
