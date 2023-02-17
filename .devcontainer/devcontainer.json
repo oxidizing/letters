@@ -1,0 +1,42 @@
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json or the definition README at
+// https://github.com/microsoft/vscode-dev-containers/tree/master/containers/python-3 or the
+// devcontainer docu https://code.visualstudio.com/docs/remote/containers#_devcontainerjson-reference
+{
+    "name": "letters",
+    "dockerComposeFile": "./docker-compose.yml",
+    "service": "dev",
+    "workspaceFolder": "/workspace",
+    "privileged": true,
+    "postCreateCommand": "/bin/bash .devcontainer/postCreate.sh",
+    // Supported customizations: https://containers.dev/supporting
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.profiles.linux": {
+                    "zsh": {
+                        "path": "/bin/zsh"
+                    }
+                },
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "editor.formatOnSave": true,
+                "files.associations": {
+                    "*.ml": "ocaml",
+                    "*.mli": "ocaml"
+                },
+                "ocaml.sandbox": {
+                    "kind": "global"
+                }
+            }
+        },
+        // Add the IDs of extensions you want installed when the container is created in the array below.
+        "extensions": [
+            "DavidAnson.vscode-markdownlint",
+            "donjayamanne.githistory",
+            "eamodio.gitlens",
+            "exiasr.hadolint",
+            "irongeek.vscode-env",
+            "ms-vscode.makefile-tools",
+            "ocamllabs.ocaml-platform"
+        ]
+    }
+}
