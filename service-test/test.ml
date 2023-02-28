@@ -13,7 +13,7 @@ let get_ethereal_account_details () =
   let hostname = json |> member "hostname" |> to_string in
   let port = json |> member "port" |> to_int in
   let with_starttls = json |> member "secure" |> to_bool |> not in
-  Config.make ~username ~password ~hostname ~with_starttls
+  Config.create ~username ~password ~hostname ~with_starttls ()
   |> Config.set_port (Some port)
   |> Lwt.return
 ;;
@@ -29,7 +29,7 @@ let get_mailtrap_account_details () =
   let hostname = json |> member "hostname" |> to_string in
   let port = json |> member "port" |> to_int in
   let with_starttls = json |> member "secure" |> to_bool |> not in
-  Config.make ~username ~password ~hostname ~with_starttls
+  Config.create ~username ~password ~hostname ~with_starttls ()
   |> Config.set_port (Some port)
   |> Lwt.return
 ;;
@@ -56,7 +56,7 @@ Regards,
 The team
 |}
   in
-  let mail = build_email ~from:sender ~recipients ~subject ~body in
+  let mail = create_email ~from:sender ~recipients ~subject ~body () in
   match mail with
   | Ok message -> send ~config ~sender ~recipients ~message
   | Error reason -> Lwt.fail_with reason
@@ -71,6 +71,7 @@ let test_send_html_email config _ () =
     ; Bcc "dave@example.com"
     ]
   in
+  let reply_to = "reply@example.com" in
   let subject = "HTML only test email" in
   let body =
     Html
@@ -86,7 +87,7 @@ let test_send_html_email config _ () =
 </p>
 |}
   in
-  let mail = build_email ~from:sender ~recipients ~subject ~body in
+  let mail = create_email ~reply_to ~from:sender ~recipients ~subject ~body () in
   match mail with
   | Ok message -> send ~config ~sender ~recipients ~message
   | Error reason -> Lwt.fail_with reason
@@ -127,7 +128,7 @@ The team
 |}
   in
   let mail =
-    build_email ~from:sender ~recipients ~subject ~body:(Mixed (text, html, None))
+    create_email ~from:sender ~recipients ~subject ~body:(Mixed (text, html, None)) ()
   in
   match mail with
   | Ok message -> send ~config ~sender ~recipients ~message
@@ -162,7 +163,7 @@ broken:::  <a href="https://github.com/oxidizing/sihl">Sihl</a>
 |}
   in
   let mail =
-    build_email ~from:sender ~recipients ~subject ~body:(Mixed (text, html, None))
+    create_email ~from:sender ~recipients ~subject ~body:(Mixed (text, html, None)) ()
   in
   match mail with
   | Ok message -> send ~config ~sender ~recipients ~message
