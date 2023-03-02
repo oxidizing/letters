@@ -1,6 +1,6 @@
 (executable
  (name test)
- (libraries letters alcotest alcotest-lwt lwt yojson))
+ (libraries alcotest alcotest-lwt letters lwt yojson))
 
 (rule
  (alias runtest-all)

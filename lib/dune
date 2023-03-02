@@ -2,21 +2,25 @@
  (name letters)
  (public_name letters)
  (libraries
-   ptime.clock.os
-   lwt
-   lwt.unix
-   tls
-   tls.lwt
-   fpath
-   colombe
-   colombe.emile
-   mrmime
-   sendmail
-   sendmail.starttls
-   ca-certs
- )
-)
+  ca-certs
+  colombe
+  colombe.emile
+  domain-name
+  emile
+  fmt
+  logs
+  lwt
+  lwt.unix
+  mrmime
+  ptime.clock.os
+  rresult
+  sendmail
+  sendmail.starttls
+  tls
+  tls-lwt
+  x509))
 
 (env
-  (dev
-    (flags (:standard -w -16))))
+ (dev
+  (flags
+   (:standard -w -16))))
