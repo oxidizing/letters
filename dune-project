@@ -2,7 +2,7 @@
 
 (name letters)
 
-(version 0.3.2)
+(version 0.3.3)
 
 (generate_opam_files true)
 
