@@ -26,17 +26,17 @@
                 "ocaml.sandbox": {
                     "kind": "global"
                 }
-            }
-        },
-        // Add the IDs of extensions you want installed when the container is created in the array below.
-        "extensions": [
-            "DavidAnson.vscode-markdownlint",
-            "donjayamanne.githistory",
-            "eamodio.gitlens",
-            "exiasr.hadolint",
-            "irongeek.vscode-env",
-            "ms-vscode.makefile-tools",
-            "ocamllabs.ocaml-platform"
-        ]
+            },
+            // Add the IDs of extensions you want installed when the container is created in the array below.
+            "extensions": [
+                "donjayamanne.githistory",
+                "eamodio.gitlens",
+                "exiasr.hadolint",
+                "irongeek.vscode-env",
+                "ocamllabs.ocaml-platform",
+                "DavidAnson.vscode-markdownlint",
+                "ms-vscode.makefile-tools"
+            ]
+        }
     }
 }

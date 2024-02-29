@@ -1,5 +1,5 @@
 FROM hadolint/hadolint:latest-alpine AS hadolint
-FROM ocaml/opam:debian-11-ocaml-4.12
+FROM ocaml/opam:debian-ocaml-4.14
 
 USER root
 

@@ -5,6 +5,7 @@
   ca-certs
   colombe
   colombe.emile
+  containers
   domain-name
   emile
   fmt
