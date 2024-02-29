@@ -1,5 +1,5 @@
 opam-version: "2.0"
-version: "0.3.2"
+version: "0.3.3"
 synopsis: "Client library for sending emails over SMTP"
 description: "Simple to use SMTP client implementation for OCaml"
 maintainer: ["Miko Nieminen <miko.nieminen@iki.fi>"]
@@ -9,13 +9,9 @@ homepage: "https://github.com/oxidizing/letters/"
 doc: "https://oxidizing.github.io/letters/"
 bug-reports: "https://github.com/oxidizing/letters/issues"
 depends: [
-  "alcotest" {= "1.7.0" & with-test}
-  "alcotest-lwt" {= "1.7.0" & with-test}
-  "angstrom" {= "0.15.0"}
+  "angstrom" {= "0.16.0"}
   "asn1-combinators" {= "0.2.6"}
   "astring" {= "0.8.5"}
-  "base" {= "v0.15.1" & dev}
-  "base-bigarray" {= "base"}
   "base-bytes" {= "base"}
   "base-threads" {= "base"}
   "base-unix" {= "base"}
@@ -24,25 +20,23 @@ depends: [
   "bigstringaf" {= "0.9.1"}
   "bos" {= "0.2.1"}
   "ca-certs" {= "0.2.3"}
-  "camlp-streams" {= "5.0.1" & dev}
   "cmdliner" {= "1.2.0"}
   "coin" {= "0.1.4"}
   "colombe" {= "0.8.0"}
   "conf-gmp" {= "4"}
   "conf-gmp-powm-sec" {= "3"}
   "conf-pkg-config" {= "3"}
+  "containers" {= "3.13.1"}
   "cppo" {= "1.6.9"}
   "csexp" {= "1.5.2"}
   "cstruct" {= "6.2.0"}
   "domain-name" {= "0.4.0"}
-  "dune" {= "3.9.1"}
-  "dune-build-info" {= "3.9.1" & dev}
-  "dune-configurator" {= "3.9.1"}
+  "dune" {= "3.14.0"}
+  "dune-configurator" {= "3.14.0"}
   "duration" {= "0.2.1"}
-  "either" {= "1.0.0" & dev}
+  "either" {= "1.0.0"}
   "emile" {= "1.1"}
   "eqaf" {= "0.9"}
-  "fix" {= "20230505" & dev}
   "fmt" {= "0.9.0"}
   "fpath" {= "0.7.3"}
   "gmap" {= "0.3.0"}
@@ -50,53 +44,37 @@ depends: [
   "ipaddr" {= "5.5.0"}
   "ke" {= "0.6"}
   "logs" {= "0.7.0"}
-  "lwt" {= "5.6.1"}
+  "lwt" {= "5.7.0"}
   "macaddr" {= "5.5.0"}
-  "menhir" {= "20230608" & dev}
-  "menhirLib" {= "20230608" & dev}
-  "menhirSdk" {= "20230608" & dev}
-  "mirage-crypto" {= "0.11.1"}
-  "mirage-crypto-ec" {= "0.11.1"}
-  "mirage-crypto-pk" {= "0.11.1"}
-  "mirage-crypto-rng" {= "0.11.1"}
-  "mirage-crypto-rng-lwt" {= "0.11.1"}
+  "mirage-crypto" {= "0.11.3"}
+  "mirage-crypto-ec" {= "0.11.3"}
+  "mirage-crypto-pk" {= "0.11.3"}
+  "mirage-crypto-rng" {= "0.11.3"}
+  "mirage-crypto-rng-lwt" {= "0.11.3"}
   "mrmime" {= "0.6.0"}
   "mtime" {= "2.0.0"}
-  "ocaml" {= "4.13.1"}
-  "ocaml-base-compiler" {= "4.13.1"}
-  "ocaml-config" {= "2"}
-  "ocaml-options-vanilla" {= "1"}
+  "ocaml" {= "4.14.1"}
   "ocaml-syntax-shims" {= "1.0.0"}
-  "ocaml-version" {= "3.6.1" & dev}
-  "ocamlbuild" {= "0.14.2"}
+  "ocamlbuild" {= "0.14.3"}
   "ocamlfind" {= "1.9.6"}
-  "ocamlformat" {= "0.26.0" & dev}
-  "ocamlformat-lib" {= "0.26.0" & dev}
-  "ocp-indent" {= "1.8.1" & dev}
   "ocplib-endian" {= "1.2"}
   "pbkdf" {= "1.2.0"}
   "pecu" {= "0.6"}
   "prettym" {= "0.0.3"}
   "ptime" {= "1.1.0"}
-  "re" {= "1.10.4"}
-  "result" {= "1.5"}
+  "re" {= "1.11.0"}
   "rosetta" {= "0.3.0"}
   "rresult" {= "0.7.0"}
   "sendmail" {= "0.8.0"}
   "seq" {= "base"}
-  "sexplib0" {= "v0.15.1"}
-  "stdio" {= "v0.15.0" & dev}
-  "stdlib-shims" {= "0.3.0" & with-test}
-  "tls" {= "0.17.1"}
-  "tls-lwt" {= "0.17.1"}
+  "sexplib0" {= "v0.16.0"}
+  "tls" {= "0.17.3"}
+  "tls-lwt" {= "0.17.3"}
   "topkg" {= "1.0.7"}
   "unstrctrd" {= "0.3"}
-  "uucp" {= "15.0.0" & dev}
-  "uuseg" {= "15.0.0" & dev}
   "uutf" {= "1.0.3"}
   "uuuu" {= "0.3.0"}
   "x509" {= "0.16.5"}
-  "yojson" {= "2.1.0" & with-test}
   "yuscii" {= "0.3.0"}
   "zarith" {= "1.13"}
 ]

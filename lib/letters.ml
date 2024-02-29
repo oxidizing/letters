@@ -82,7 +82,7 @@ let domain_of_reverse_path = function
 ;;
 
 let to_recipient_to_address : recipient -> Mrmime.Address.t option =
- fun recipient ->
+  fun recipient ->
   match recipient with
   | To address ->
     (match Mrmime.Mailbox.of_string address with
@@ -93,7 +93,7 @@ let to_recipient_to_address : recipient -> Mrmime.Address.t option =
 ;;
 
 let cc_recipient_to_address : recipient -> Mrmime.Address.t option =
- fun recipient ->
+  fun recipient ->
   match recipient with
   | To _ -> None
   | Cc address ->
@@ -113,7 +113,11 @@ let create_email ?reply_to ~from ~recipients ~subject ~body () =
       | Ok v -> v
       | Error _ -> raise (Invalid_email_address from)
     in
-    let subject = Unstructured.Craft.v subject in
+    let subject : Unstructured.t =
+      CCUtf8_string.(of_string subject |> CCOption.map to_list)
+      |> CCOption.map (CCList.map (fun m -> `Uchar m))
+      |> CCOption.get_or ~default:(Unstructured.Craft.v subject)
+    in
     let date = Date.of_ptime ~zone:Date.Zone.GMT (Ptime_clock.now ()) in
     let from_addr = from |> to_mailbox in
     let to_addresses = List.filter_map to_recipient_to_address recipients in
@@ -126,11 +130,10 @@ let create_email ?reply_to ~from ~recipients ~subject ~body () =
       ; Field.(Field (Field_name.cc, Addresses, cc_addresses))
       ]
       @ (reply_to
-        |> Option.map (fun a ->
-             Field.(
-               Field
-                 (Field_name.reply_to, Addresses, [ a |> to_mailbox |> Address.mailbox ])))
-        |> Option.to_list)
+         |> Option.map (fun a ->
+           Field.(
+             Field (Field_name.reply_to, Addresses, [ a |> to_mailbox |> Address.mailbox ])))
+         |> Option.to_list)
     in
     let plain_text_headers =
       let content1 =
