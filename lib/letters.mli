@@ -33,7 +33,7 @@ module Config : sig
     -> hostname:string
     -> with_starttls:bool
     -> t
-    [@@deprecated "Replace with [create] function"]
+  [@@deprecated "Replace with [create] function"]
 
   (** Add a port to configuration record
 
@@ -105,7 +105,7 @@ val build_email
   -> subject:string
   -> body:body
   -> (Mrmime.Mt.t, string) result
-  [@@deprecated "Replace with [create_email] function"]
+[@@deprecated "Replace with [create_email] function"]
 
 (** Send the previously created email
 

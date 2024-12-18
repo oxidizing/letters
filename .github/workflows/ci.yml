@@ -13,35 +13,38 @@ jobs:
           # Disable macos build for now since it keeps failing with dune not found
           # - macos-latest
           - ubuntu-latest
-        ocaml-version:
-          - 4.11.1
+        ocaml-compiler:
+          - 4.14
+          - 4.13
+          - 4.12
+          - 4.11
           - 4.10.1
-          - 4.09.1
-          - 4.08.1
+          - 4.09
+          - 4.08
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Retrieve opam cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         if: runner.os != 'Windows'
         id: cache-opam
         with:
           path: ~/.opam
-          key: v1-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-${{ hashFiles('*.opam.locked') }}
-          restore-keys: |
-            v2-${{ runner.os }}-opam-${{ matrix.ocaml-version }}-
-      - name: Use OCaml ${{ matrix.ocaml-version }}
-        uses: avsm/setup-ocaml@v1
+          key: v1-${{ runner.os }}-opam-${{ matrix.ocaml-compiler }}-${{ hashFiles('*.opam.locked') }}
+      - name: Use OCaml ${{ matrix.ocaml-compiler }}
+        uses: ocaml/setup-ocaml@v3
         with:
-          ocaml-version: ${{ matrix.ocaml-version }}
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
       - name: Install dependencies
         if: steps.cache-opam.outputs.cache-hit != 'true'
         run: |
           opam install -y dune
-          opam install -y . --deps-only --with-doc --with-test --locked --unlock-base
+          opam install -y . --deps-only --with-doc --with-test --locked --update-invariant
       - name: Recover from an Opam broken state
         if: steps.cache-opam.outputs.cache-hit == 'true'
-        run: opam upgrade --fixup
+        run: |
+          opam install -y dune
+          opam upgrade --fixup
       - name: Build
         run: make build
       - name: Run tests
