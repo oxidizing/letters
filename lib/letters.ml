@@ -243,11 +243,11 @@ let send =
     let recipients =
       List.map
         (fun recipient ->
-          (match recipient with
-           | To a -> a
-           | Cc a -> a
-           | Bcc a -> a)
-          |> str_to_colombe_address)
+           (match recipient with
+            | To a -> a
+            | Cc a -> a
+            | Bcc a -> a)
+           |> str_to_colombe_address)
         recipients
     in
     let domain =

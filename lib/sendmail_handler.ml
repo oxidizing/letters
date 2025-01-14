@@ -35,22 +35,29 @@ let rdwr =
   }
 ;;
 
+let convert_tls_error = fun (`Msg msg) -> `Protocol (`Invalid_login_challenge msg)
+
 let run_with_starttls
-  ~hostname
-  ?port
-  ~domain
-  ?authentication
-  ~tls_authenticator
-  ~from
-  ~recipients
-  ~mail
+      ~hostname
+      ?port
+      ~domain
+      ?authentication
+      ~tls_authenticator
+      ~from
+      ~recipients
+      ~mail
   =
+  let ( let* ) = Lwt_result.bind in
   let port =
     match port with
     | Some port -> port
     | None -> 465
   in
-  let tls = Tls.Config.client ~authenticator:tls_authenticator () in
+  let* tls =
+    Tls.Config.client ~authenticator:tls_authenticator ()
+    |> Lwt_result.lift
+    |> Lwt_result.map_error convert_tls_error
+  in
   let ctx = Sendmail_with_starttls.Context_with_tls.make () in
   let open Lwt.Infix in
   Lwt_unix.gethostbyname (Domain_name.to_string hostname)
@@ -94,7 +101,7 @@ let run_with_starttls
 
 let run ~hostname ?port ~domain ?authentication ~tls_authenticator ~from ~recipients ~mail
   =
-  let ( let* ) = Lwt.bind in
+  let ( let* ) = Lwt_result.bind in
   let port =
     match port with
     | Some port -> port
@@ -103,6 +110,7 @@ let run ~hostname ?port ~domain ?authentication ~tls_authenticator ~from ~recipi
   let ctx = Colombe.State.Context.make () in
   let* ic, oc =
     Tls_lwt.connect tls_authenticator (Domain_name.to_string hostname, port)
+    |> Lwt_result.map_error convert_tls_error
   in
   let mail_stream () =
     match mail () with

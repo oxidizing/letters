@@ -5,8 +5,8 @@ let ( let* ) = Lwt.bind
 let get_ethereal_account_details () =
   let open Yojson.Basic.Util in
   (* see the README.md how to generate the account file and the path
-   * below is relative to the location of the executable under _build
-   *)
+     * below is relative to the location of the executable under _build
+  *)
   let json = Yojson.Basic.from_file "../../../ethereal_account.json" in
   let username = json |> member "username" |> to_string in
   let password = json |> member "password" |> to_string in
@@ -21,8 +21,8 @@ let get_ethereal_account_details () =
 let get_mailtrap_account_details () =
   let open Yojson.Basic.Util in
   (* see the README.md how to generate the account file and the path
-   * below is relative to the location of the executable under _build
-   *)
+     * below is relative to the location of the executable under _build
+  *)
   let json = Yojson.Basic.from_file "../../../mailtrap_account.json" in
   let username = json |> member "username" |> to_string in
   let password = json |> member "password" |> to_string in
